@@ -45,6 +45,61 @@ if (logger.hasHandlers()):
 console = logging.StreamHandler()
 logger.addHandler(console)
 
+def get_paths(subqs, subq_idx, retrieved_doc_ids, answers):
+
+    id subq_idx >= len(subqs):
+        return [[]]
+
+    subq = subqs[subq_idx]
+    # fill in missing spots (ex: "#1") with answers from previous hops
+    i = 0
+    while i < len(subq):   
+        if subq[i] == "#":
+            j = i+1
+        numstr = " "
+        while j<len(subq) and isdigit(sub_q[j])
+            numstr += s[j]
+            j +=1
+      
+        if len(numstr) > 0:     
+            subq_answers_idx = int(numstr) - 1
+            assert(subq_answers_idx < len(subq))
+            subq = squbq[:i] + subq_answers[subq_answers_idx] + subq[j:]
+            i = j
+        else:
+            i +=1
+    else:
+        i +=1
+
+    #make query (+contexts of previous hops)
+    query_components = [subq] + retrieved_doc_ids
+    query = [subq] + [id2doc[str(doc_id)] for doc_id in retrieved_doc_ids]
+
+    # encode query
+    query_encodes = tokenizer.encode_plus(query, max_length=args.max_q_len, pad_to_max_length=True, return_tensors="pt")
+    query_encodes = move_to_cuda(dict(query_encodes))
+    q_embed = model.encode_q(query_encodes["input_ids"], query_encodes["attention_mask"], query_encodes.get("token_type_ids", None))
+    q_embed_numpy = q_embed.cpu().contiguous().numpy()
+
+    # gets beam_size number of docs that have min dist away from question
+    # D, I = distances and IDs of these^ docs    
+    # shape = 1 
+    D, I = index.search(q_embed_numpy, args.beam_size)           #TODO: figure out how to build this up 
+
+    all_query_chains = []
+    for _, doc_id in enumerate(I[0]): #loops thru each doc ID from the search for b_idx^th question
+        doc = id2doc[str(doc_id)]["text"]
+        if "roberta" in  args.model_name and doc.strip() == "":
+            doc = id2doc[str(doc_id)]["title"]
+            D[0][_] = float("-inf")
+
+        #TODO: GET ANSWER USING DPR
+        query_chains = get_paths(subqs, subq_idx+1, retrieved_doc_ids + [doc_id], answers + [answer])
+        for query_chain in query_chains:
+            all_query_chains.append(query_components + query_chain)
+        
+        return all_query_chains
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -113,55 +168,45 @@ if __name__ == '__main__':
     logger.info("Encoding questions and searching")
     # all questions in dataset
     # TODO: change this to subquestions/decomps 
-    questions = [_["question"][:-1] if _["question"].endswith("?") else _["question"] for _ in ds_items]
+    # questions = [_["question"][:-1] if _["question"].endswith("?") else _["question"] for _ in ds_items]
+    questions = []
+    for record in ds_items:
+        questions.append([subq[:-1] for subq in record["decomposition"]])
+
     metrics = []
     retrieval_outputs = []
-    for b_start in tqdm(range(0, len(questions), args.batch_size)): #goes through each batch
+    for b_dx in tqdm(range(0, len(questions))): #, args.batch_size)): #goes through each batch
         with torch.no_grad():
-            batch_q = questions[b_start:b_start + args.batch_size] # questions in batch
-            batch_ann = ds_items[b_start:b_start + args.batch_size] # dataset record in batch
-            bsize = len(batch_q)
 
-            # encode questions in the batch
-            batch_q_encodes = tokenizer.batch_encode_plus(batch_q, max_length=args.max_q_len, pad_to_max_length=True, return_tensors="pt")
-            batch_q_encodes = move_to_cuda(dict(batch_q_encodes))
-            q_embeds = model.encode_q(batch_q_encodes["input_ids"], batch_q_encodes["attention_mask"], batch_q_encodes.get("token_type_ids", None))
+            subq_answers = []
 
-            q_embeds_numpy = q_embeds.cpu().contiguous().numpy()
-            # distances and IDs: for each question in q_embeds_numpy, 
-            # gets beam_size number of docs that have min dist away from question
-            D, I = index.search(q_embeds_numpy, args.beam_size)
+            for subq_idx in range(???): #TODO: figure out range
 
-            # 2hop search
-            # TODO: change this to as many hops as there are decomps
-            query_pairs = [] #list of question + doc from search (line 132). beam_size number of docs per question
-            for b_idx in range(bsize):
-                for _, doc_id in enumerate(I[b_idx]): #loops thru each doc ID from the search for b_idx^th question
-                    doc = id2doc[str(doc_id)]["text"]
-                    if "roberta" in  args.model_name and doc.strip() == "":
-                        # doc = "fadeaxsaa" * 100
-                        doc = id2doc[str(doc_id)]["title"]
-                        D[b_idx][_] = float("-inf")
-                    #TODO: change this query to be next deomp q (filled in), doc
-                    query_pairs.append((batch_q[b_idx], doc))
+                # batch_q = questions[b_start:b_start + args.batch_size] # questions in batch
+                subq = questions[b_idx][0]
 
-            #encodes query pairs (query pair = question + doc)
-            batch_q_sp_encodes = tokenizer.batch_encode_plus(query_pairs, max_length=args.max_q_sp_len, pad_to_max_length=True, return_tensors="pt")
-            batch_q_sp_encodes = move_to_cuda(dict(batch_q_sp_encodes))
-            s1 = time.time()
-            q_sp_embeds = model.encode_q(batch_q_sp_encodes["input_ids"], batch_q_sp_encodes["attention_mask"], batch_q_sp_encodes.get("token_type_ids", None))
-            # print("Encoding time:", time.time() - s1)
+                ann = ds_items[b_idx] # dataset record in batch
 
-            
-            q_sp_embeds = q_sp_embeds.contiguous().cpu().numpy()
-            s2 = time.time()
 
-            #outputs 2nd hop. q_sp_embeds is the query input for the 2nd hop
-            D_, I_ = index.search(q_sp_embeds, args.beam_size)
+    
+                #encodes query pairs (query pair = question + doc)
+                batch_q_sp_encodes = tokenizer.batch_encode_plus(query_pairs, max_length=args.max_q_sp_len, pad_to_max_length=True, return_tensors="pt")
+                batch_q_sp_encodes = move_to_cuda(dict(batch_q_sp_encodes))
+                s1 = time.time()
+                q_sp_embeds = model.encode_q(batch_q_sp_encodes["input_ids"], batch_q_sp_encodes["attention_mask"], batch_q_sp_encodes.get("token_type_ids", None))
+                # print("Encoding time:", time.time() - s1)
 
-            #question to 1st hop doc to 2nd hop doc
-            D_ = D_.reshape(bsize, args.beam_size, args.beam_size)
-            I_ = I_.reshape(bsize, args.beam_size, args.beam_size)
+                q_sp_embeds = q_sp_embeds.contiguous().cpu().numpy()
+                s2 = time.time()
+
+                #outputs 2nd hop. q_sp_embeds is the query input for the 2nd hop
+                D_, I_ = index.search(q_sp_embeds, args.beam_size)
+
+                #question to 1st hop doc to 2nd hop doc
+                D_ = D_.reshape(bsize, args.beam_size, args.beam_size)
+                I_ = I_.reshape(bsize, args.beam_size, args.beam_size)
+
+            #INNER FOR LOOP ENDS HERE FOR NOW. TODO: FIX/CHECK THIS
 
             # aggregate path scores
             # path_scores[a][b][c] = score of question a picking doc b 
