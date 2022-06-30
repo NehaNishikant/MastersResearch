@@ -255,17 +255,22 @@ if __name__ == '__main__':
             # for idx in range(bsize): # gets top k paths for each question
 
             search_scores = path_scores[0]
-            # ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
-            #                             (args.beam_size, args.beam_size))).transpose()
+
+
+            # i^th row = (a, b) = indices in search scores for i^th best score
+            # meaning hop1 = doc a, hop2 = doc b
+            # (before transpose: i^th column)
+            ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
+                                        shape[1:])).transpose()
 
 
             retrieved_titles = []
             hop1_titles = []
             paths, path_titles = [], []
             for _ in range(args.topk):                     
-                path_ids = ranked_pairs[_]
-                hop_1_id = I[0, path_ids[0]]
-                hop_2_id = I_[0, path_ids[0], path_ids[1]]
+                path_ids = ranked_pairs[_] #indices in search scores for _th best score
+                hop_1_id = I[0, path_ids[0]] #doc a for hop 1
+                hop_2_id = I_[0, path_ids[0], path_ids[1]] #doc b for hop 2
                 retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
                 retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
 
