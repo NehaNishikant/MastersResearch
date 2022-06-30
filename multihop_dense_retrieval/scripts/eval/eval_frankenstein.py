@@ -145,9 +145,9 @@ if __name__ == '__main__':
     # dataset items
     ds_items = [json.loads(_) for _ in open(args.raw_data).readlines()]
 
-    # filter
-    if args.only_eval_ans:
-        ds_items = [_ for _ in ds_items if _["answer"][0] not in ["yes", "no"]]
+    # # filter
+    # if args.only_eval_ans:
+    #     ds_items = [_ for _ in ds_items if _["answer"][0] not in ["yes", "no"]]
 
     logger.info("Loading trained model...")
     bert_config = AutoConfig.from_pretrained(args.model_name)
@@ -188,7 +188,6 @@ if __name__ == '__main__':
     # questions = [_["question"][:-1] if _["question"].endswith("?") else _["question"] for _ in ds_items]
     for record in ds_items:
         
-        question = record["question"]
         subqs = ([subq[:-1] for subq in record["decomposition"]])
 
         metrics = []
@@ -260,6 +259,9 @@ if __name__ == '__main__':
             # i^th row = (a, b) = indices in search scores for i^th best score
             # meaning hop1 = doc a, hop2 = doc b
             # (before transpose: i^th column)
+            # ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
+            #                                (args.beam_size, args.beam_size))).transpose()
+
             ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
                                         shape[1:])).transpose()
 
@@ -269,70 +271,83 @@ if __name__ == '__main__':
             paths, path_titles = [], []
             for _ in range(args.topk):                     
                 path_ids = ranked_pairs[_] #indices in search scores for _th best score
-                hop_1_id = I[0, path_ids[0]] #doc a for hop 1
-                hop_2_id = I_[0, path_ids[0], path_ids[1]] #doc b for hop 2
-                retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
-                retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
 
-                paths.append([str(hop_1_id), str(hop_2_id)])
-                path_titles.append([id2doc[str(hop_1_id)]["title"], id2doc[str(hop_2_id)]["title"]])
-                hop1_titles.append(id2doc[str(hop_1_id)]["title"])
+                # hop_1_id = I[0, path_ids[0]] #doc a for hop 1
+                # hop_2_id = I_[0, path_ids[0], path_ids[1]] #doc b for hop 2
+                hop_ids = []
+                for subq_idx in range(len(subqs)): #go through all subqs
+                    indices = [0] + path_ids[:subq_idx+1]
+                    hop_ids.append(path_docs[subq_idx][indices])
+
+                # retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
+                # retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
+                # paths.append([str(hop_1_id), str(hop_2_id)])
+                # path_titles.append([id2doc[str(hop_1_id)]["title"], id2doc[str(hop_2_id)]["title"]])
+                paths.append([str(hop_id) for hop_id in hop_ids])
+                path_titles.append([id2doc[str(hop_id)]["title"] for hop_id in hop_ids])
+                for hop_id in hop_ids:
+                    retrieved_titles.append(id2doc[str(hop_id)]["title"])
+
+                
+                # hop1_titles.append(id2doc[str(hop_1_id)]["title"])
             
-            if args.only_eval_ans:
-                gold_answers = batch_ann[0]["answer"]
-                concat_p = "yes no "
-                for p in paths:
-                    concat_p += " ".join([id2doc[doc_id]["title"] + " " + id2doc[doc_id]["text"] for doc_id in p])
-                metrics.append({
-                    "question": batch_ann[0]["question"],
-                    "ans_recall": int(para_has_answer(gold_answers, concat_p, simple_tokenizer)),
-                    "type": batch_ann[0].get("type", "single")
-                })
+            # if args.only_eval_ans:
+            #     gold_answers = batch_ann[0]["answer"]
+            #     concat_p = "yes no "
+            #     for p in paths:
+            #         concat_p += " ".join([id2doc[doc_id]["title"] + " " + id2doc[doc_id]["text"] for doc_id in p])
+            #     metrics.append({
+            #         "question": batch_ann[0]["question"],
+            #         "ans_recall": int(para_has_answer(gold_answers, concat_p, simple_tokenizer)),
+            #         "type": batch_ann[0].get("type", "single")
+            #     })
                 
-            else:
-                sp = batch_ann[0]["sp"]
+            # else:
+            sp = record["sp"]
 
-                print("sp: ", sp)
+            print("sp: ", sp)
 
-                # assert len(set(sp)) == 2 #commented out bc for stqa it's not 2
-                
-                type_ = batch_ann[0]["type"]
-                question = batch_ann[0]["question"]
-                p_recall, p_em = 0, 0
-                sp_covered = [sp_title in retrieved_titles for sp_title in sp]
-                if np.sum(sp_covered) > 0:
-                    p_recall = 1
-                if np.sum(sp_covered) == len(sp_covered):
-                    p_em = 1
-                path_covered = [int(set(p) == set(sp)) for p in path_titles]
-                path_covered = np.sum(path_covered) > 0
-                recall_1 = 0
-                covered_1 = [sp_title in hop1_titles for sp_title in sp]
-                if np.sum(covered_1) > 0: recall_1 = 1
-                metrics.append({
+            # assert len(set(sp)) == 2 #commented out bc for stqa it's not 2
+            
+            question = record["question"]
+            type_ = record["type"]
+            p_recall, p_em = 0, 0
+            sp_covered = [sp_title in retrieved_titles for sp_title in sp]
+            if np.sum(sp_covered) > 0:
+                p_recall = 1
+            if np.sum(sp_covered) == len(sp_covered):
+                p_em = 1
+            path_covered = [int(set(p) == set(sp)) for p in path_titles]
+            path_covered = np.sum(path_covered) > 0
+            recall_1 = 0
+            covered_1 = [sp_title in hop1_titles for sp_title in sp]
+            if np.sum(covered_1) > 0: recall_1 = 1
+            metrics.append({
                 "question": question,
                 "p_recall": p_recall,
                 "p_em": p_em,
                 "type": type_,
                 'recall_1': recall_1,
                 'path_covered': int(path_covered)
-                })
+            })
 
 
-                # saving when there's no annotations
-                candidaite_chains = []
-                for path in paths:
-                    candidaite_chains.append([id2doc[path[0]], id2doc[path[1]]])
-                
-                retrieval_outputs.append({
-                    "_id": batch_ann[idx]["_id"],
-                    "question": batch_ann[idx]["question"],
-                    "candidate_chains": candidaite_chains,
-                    # "sp": sp_chain,
-                    # "answer": gold_answers,
-                    # "type": type_,
-                    # "coverd_k": covered_k
-                })
+            # saving when there's no annotations
+            candidate_chains = []
+            for path in paths:
+                # candidate_chains.append([[id2doc[path[0]], id2doc[path[1]]]])
+                # unsure why it's wrapped in an extra set of square brackets? i will remove that
+                candidate_chains.append([id2doc[hopid] for hop_id in path])
+            
+            retrieval_outputs.append({
+                "_id": batch_ann[idx]["_id"],
+                "question": batch_ann[idx]["question"],
+                "candidate_chains": candidate_chains,
+                # "sp": sp_chain,
+                # "answer": gold_answers,
+                # "type": type_,
+                # "coverd_k": covered_k
+            })
 
     if args.save_path != "":
         with open(args.save_path, "w") as out:
