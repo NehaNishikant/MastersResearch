@@ -444,7 +444,7 @@ def join_idxs():
     path = "/projects/tir3/users/nnishika/"
     extended_path = path + "StqaIndexChunks/StqaIndexChunk1"
     
-    # index = np.load(extended_path + ".npy")
+    index = np.load(extended_path + ".npy")
  
     f_1 = open(extended_path + "/id2doc.json", "r") 
     d = json.load(f_1)
@@ -455,9 +455,9 @@ def join_idxs():
     for i in range(2, 75):
         extended_path = path + "StqaIndexChunks/StqaIndexChunk" + str(i)
         
-        # np_path = extended_path + ".npy" 
-        # chunk_idx = np.load(np_path).astype('float32')
-        # index = np.vstack((index, chunk_idx))
+        np_path = extended_path + ".npy" 
+        chunk_idx = np.load(np_path).astype('float32')
+        index = np.vstack((index, chunk_idx))
 
         f_chunk_dict = open(extended_path +  "/id2doc.json", "r")
         chunk_dict = json.load(f_chunk_dict)
@@ -469,15 +469,15 @@ def join_idxs():
         f_chunk_dict.close()
 
     #save index
-    # f_idx = open(path+"StqaIndex/StqaIndex.npy", "wb")
-    # np.save(f_idx, index)
-    # f_idx.close()
+    f_idx = open(path+"StqaIndex/StqaIndex.npy", "wb")
+    np.save(f_idx, index)
+    f_idx.close()
 
     f_dict = open(path+"StqaIndex/id2doc.json", "w")
     json.dump(d, f_dict)
     f_dict.close()
 
-join_idxs()
+# join_idxs()
 
 """
 decomps for each question to easily manually look at them. 
@@ -509,7 +509,6 @@ checks if stqa corpus chunks are consistent/well-formed
 def sanity_check():
     
     path = "/projects/tir3/users/nnishika/"
-    """
     f_corpus = open(path+"stqa_corpus.json", "r")
     print("corpus len: ", len(f_corpus.readlines()))
     f_corpus.close()
@@ -535,10 +534,29 @@ def sanity_check():
         print("chunk "+str(i)+" rows, ids: ", chunk_rows, chunk_ids)
 
     print("rows, ids across chunks: ", rows_across_chunks, ids_across_chunks)
-    """
-    # index_total = np.load(path+"StqaIndex/StqaIndex.npy")
-    # print("total index shape: ", index_total.shape)
+    
+    index_total = np.load(path+"StqaIndex/StqaIndex.npy")
+    print("total index shape: ", index_total.shape)
     f_id2doc_total = open(path+"StqaIndex/id2doc.json")
     print("total ids: ", len(json.load(f_id2doc_total)))
 
-sanity_check()
+# sanity_check()
+
+def chunk_json_to_tsv():
+
+    path = "/projects/tir3/users/nnishika/"
+    for i in range(1, 75):
+        f_in = open(path+"stqa_corpus_chunks/stqa_corpus_"+str(i)+".json", "r")
+        f_out = open(path+"stqa_corpus_chunks_dpr/stqa_corpus_"+str(i)+".tsv", "w")
+        tsv_writer = csv.writer(f_out, delimiter="\t")
+        tsv_writer.writerow(["id", "text", "title"])
+        counter = 1
+        for line in f_in.readlines():
+            record = json.loads(line)
+            tsv_writer.writerow([counter, record["text"], record["title"]])
+
+        f_in.close()
+        f_out.close()
+
+chunk_json_to_tsv()
+
