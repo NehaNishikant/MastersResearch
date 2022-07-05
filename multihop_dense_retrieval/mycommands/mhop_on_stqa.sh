@@ -18,8 +18,8 @@ export OMP_NUM_THREADS=1
 # you can't run this on tir GPUs bc it runs out of memory unless the index is small
 
 python scripts/eval/eval_mhop_retrieval.py /home/nnishika/stqaout/stqa_to_hotpot.json \
-    data/hotpot_index/wiki_index.npy \
-    data/hotpot_index/wiki_id2doc.json \
+    /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \
+    /projects/tir3/users/nnishika/StqaIndex/id2doc.json \
     models/q_encoder.pt \
     --batch-size 1 \
     --beam-size 10 \

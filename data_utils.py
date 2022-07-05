@@ -152,7 +152,8 @@ def stqa_stats():
 # stqa_stats()
 
 """
-outputs title to text dictionary of stqa's corpus
+outputs title to text dictionary of stqa's corpus.
+ARCHIVED.
 """
 def title_to_text():
 
@@ -179,7 +180,7 @@ def title_to_text():
 """
 creates a dictionary mapping each stqa train question to
 its index in the trainfile (that I have created), which is
-in the same order as the stqa train file.
+in the same order as the stqa train file. ARCHIVED.
 """
 def stqa_to_mdr_train_qindex():
 
@@ -200,8 +201,8 @@ def stqa_to_mdr_train_qindex():
 
 """
 formats and adds information to the stqa corpus so that we can
-finetune mdr on it. adds the pos paras for training.
-"""
+finetune mdr on it. adds the pos paras for training. 
+ARCHIVED. Wrote iterate_dataset.py instead.
 """
 def stqa_to_mdr_train():
 
@@ -241,7 +242,7 @@ def stqa_to_mdr_train():
     f2.close()
 
 # stqa_to_mdr_train()
-"""
+
 
 """
 calculates title based (coarse) recall of mdr on stqa
@@ -288,6 +289,9 @@ def coarse_recall():
 
 # coarse_recall()
 
+"""
+truthfully idk. ARCHIVED.
+"""
 def mdr_for_stqa():
 
     f_in = open("/home/nnishika/mdrout/mdr_stqa_retrieval_top10.json", "r")
@@ -315,7 +319,7 @@ def mdr_for_stqa():
 turns the stqa_bm25.json into a dictionary of q -> paras.
 the in file came from print statements in strateqa_qa_reader.py 
 after running the prediction script on stqa's trainfile using
-the IR-Q model.
+the IR-Q model. ARCHIVED. Wrote iterate_dataset.py instead
 """
 def stqa_q_to_para():
 
@@ -437,42 +441,48 @@ into one big index
 import numpy as np
 def join_idxs():
 
-    path1 = "/projects/tir3/users/nnishika/StqaIndexChunks/StqaIndexChunk"
-    path2a = "/StqaIndexChunk"
-    path3a = ".npy"
-    path2b = "/id2doc.json"
-
-    index = np.load(path1+"1"+path2a+"1"+path3a)
+    path = "/projects/tir3/users/nnishika/"
+    extended_path = path + "StqaIndexChunks/StqaIndexChunk1"
     
-    idx_offset = 0
-    d = {}
-    for i in range(2, 4):
-        np_path = path1+str(i)+path2a+str(i)+path3a
-        chunk_idx = np.load(np_path).astype('float32')
-        index = np.hstack((index, chunk_idx))
+    # index = np.load(extended_path + ".npy")
+ 
+    f_1 = open(extended_path + "/id2doc.json", "r") 
+    d = json.load(f_1)
+    f_1.close()
 
-        f_in = open(path1+str(i)+path2b, "r")
-        chunk_dict = json.load(f_in)
+    idx_offset = len(d)
+
+    for i in range(2, 75):
+        extended_path = path + "StqaIndexChunks/StqaIndexChunk" + str(i)
+        
+        # np_path = extended_path + ".npy" 
+        # chunk_idx = np.load(np_path).astype('float32')
+        # index = np.vstack((index, chunk_idx))
+
+        f_chunk_dict = open(extended_path +  "/id2doc.json", "r")
+        chunk_dict = json.load(f_chunk_dict)
         counter = 0
         for k, v in chunk_dict.items():
             d[str(int(k)+idx_offset)] = v
             counter +=1
         idx_offset += counter 
-        f_in.close()
+        f_chunk_dict.close()
 
     #save index
-    f_idx = open("/projects/tir3/users/nnishika/StqaIndexTest/StqaIndexTest.npy", "wb")
-    np.save(f_idx, index)
-    f_idx.close()
+    # f_idx = open(path+"StqaIndex/StqaIndex.npy", "wb")
+    # np.save(f_idx, index)
+    # f_idx.close()
 
-    f_dict = open("/projects/tir3/users/nnishika/StqaIndexTest/id2doc.json", "w")
+    f_dict = open(path+"StqaIndex/id2doc.json", "w")
     json.dump(d, f_dict)
     f_dict.close()
 
-# join_idxs()
+join_idxs()
 
 """
-decomps for each question to easily manually look at them. goal: make all question decomp yes/no questions so it's easy to train a classification model
+decomps for each question to easily manually look at them. 
+goal: make all question decomp yes/no questions so it's easy 
+to train a classification model. ARCHIVED.
 """
 def get_decomps(infile):
 
@@ -490,4 +500,45 @@ def get_decomps(infile):
     f_out = open("stqaout/decomps_only.json", "w")
     json.dump(d, f_out, indent=4)
 
-get_decomps("strategyqa/data/strategyqa/dev.json")
+# get_decomps("strategyqa/data/strategyqa/dev.json")
+
+
+"""
+checks if stqa corpus chunks are consistent/well-formed
+"""
+def sanity_check():
+    
+    path = "/projects/tir3/users/nnishika/"
+    """
+    f_corpus = open(path+"stqa_corpus.json", "r")
+    print("corpus len: ", len(f_corpus.readlines()))
+    f_corpus.close()
+
+    num_docs_across_chunks = 0
+    for i in range(1, 75):
+        f_chunk = open(path+"stqa_corpus_chunks/stqa_corpus_"+str(i)+".json", "r")
+        num_docs_across_chunks += len(f_chunk.readlines())
+        f_chunk.close()
+    print("num docs across chunks: ", num_docs_across_chunks)
+
+    rows_across_chunks = 0
+    ids_across_chunks = 0
+    for i in range(1, 75):
+        index = np.load(path+"StqaIndexChunks/StqaIndexChunk"+str(i)+".npy")
+        chunk_rows = index.shape[0]
+        rows_across_chunks += chunk_rows
+
+        f_id2doc = open(path+"StqaIndexChunks/StqaIndexChunk"+str(i)+"/id2doc.json", "r")
+        chunk_ids = len(json.load(f_id2doc))
+        ids_across_chunks += chunk_ids
+
+        print("chunk "+str(i)+" rows, ids: ", chunk_rows, chunk_ids)
+
+    print("rows, ids across chunks: ", rows_across_chunks, ids_across_chunks)
+    """
+    # index_total = np.load(path+"StqaIndex/StqaIndex.npy")
+    # print("total index shape: ", index_total.shape)
+    f_id2doc_total = open(path+"StqaIndex/id2doc.json")
+    print("total ids: ", len(json.load(f_id2doc_total)))
+
+sanity_check()
