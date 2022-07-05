@@ -97,6 +97,9 @@ if __name__ == '__main__':
     d = 768
     xb = np.load(args.indexpath).astype('float32')
 
+    # print("data shape: ", xb.shape)
+
+
     if args.hnsw:
         if path.exists("data/hotpot_index/wiki_index_hnsw.index"):
             index = faiss.read_index("index/wiki_index_hnsw.index")
@@ -131,13 +134,16 @@ if __name__ == '__main__':
     if args.save_index:
         faiss.write_index(index, "data/hotpot_index/wiki_index_hnsw_roberta")
     
+
     logger.info(f"Loading corpus...")
     id2doc = json.load(open(args.corpus_dict))
     if isinstance(id2doc["0"], list):
         id2doc = {k: {"title":v[0], "text": v[1]} for k, v in id2doc.items()}
     # title2text = {v[0]:v[1] for v in id2doc.values()}
     logger.info(f"Corpus size {len(id2doc)}")
-    
+   
+    print("id2doc last record: ", list(id2doc.items())[-1])
+
 
     logger.info("Encoding questions and searching")
     questions = [_["question"][:-1] if _["question"].endswith("?") else _["question"] for _ in ds_items]

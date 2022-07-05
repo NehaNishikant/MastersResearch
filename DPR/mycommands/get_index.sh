@@ -13,11 +13,9 @@ conda activate dpr
 ​
 export TQDM_DISABLE=1
 # code
-python dense_retriever.py \
-    model_file=/home/nnishika/DPR/dpr/downloads/checkpoint/retriever/single/nq/bert-base-encoder.cp \
-    qa_dataset=stqa_dev \
-    index_path = ...
-#    ctx_datatsets=[dpr_wiki] \
-#    encoded_ctx_files=[\"/home/nnishika/DPR/dpr/downloads/data/retriever_results/nq/single/wikipedia_passages*.pkl\"] 
-    batch_size=1 \
-    out_file=dprout/out-stqa.json
+
+python generate_dense_embeddings.py \
+    model_file = ... \
+    ctx_src = ... \
+    shard_id = num_shards=4\
+    out_file = ...

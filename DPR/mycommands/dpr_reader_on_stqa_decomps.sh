@@ -18,7 +18,7 @@ python train_extractive_reader.py \
     prediction_results_file=dprout/dpr_reader_on_stqa_decomps.json \
     eval_top_docs=[10,20,40,50,80,100] \      
     dev_files={path to the retriever results file to evaluate} \
-    model_file= /home/nnishika/DPR/dpr/downloads/checkpoint/retriever/single/nq/bert-base-encoder.cp \
+    model_file= /home/nnishika/DPR/dpr/downloads/ ... \
     train.dev_batch_size=80 \
     passages_per_question_predict=100 \
     encoder.sequence_length=350
