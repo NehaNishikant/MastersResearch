@@ -1,17 +1,22 @@
 #!/bin/bash
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the 
+# LICENSE file in the root directory of this source tree.
+
 #SBATCH --mem=16gb                   # Job memory request
 #SBATCH --time=0                      # Time limit hrs:min:sec
 #SBATCH --gres=gpu:1                # Number of gpu
 #SBATCH --cpus-per-task=4            # Number of CPU cores per task
 #SBATCH --output=./log/%j.log   # Standard output and error log, the program output will be here
 
-eval "$(conda shell.bash hook)"
-# you environment
 source /home/nnishika/miniconda3/etc/profile.d/conda.sh
 conda activate MDR
 ​
 export TQDM_DISABLE=1
 
+#--mem=128gb i think
 
 # you can't run this on tir GPUs bc it runs out of memory unless the index is small
 

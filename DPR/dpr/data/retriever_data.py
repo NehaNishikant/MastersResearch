@@ -221,6 +221,32 @@ class TTS_ASR_QASrc(QASrc):
         self.data = data
 
 
+class JsonCtxSrc(RetrieverData):
+    def __init__(
+        self,
+        file: str,
+        id_prefix: str = None,
+        normalize: bool = False,
+    ):
+        super().__init__(file)
+        self.id_prefix = id_prefix
+        self.normalize = normalize
+
+    def load_data_to(self, ctxs: Dict[object, BiEncoderPassage]):
+        super().load_data()
+        with open(self.file, "r") as ifile:
+            lines = ifile.readlines()
+            for i in range(len(lines)):
+                row = json.loads(lines[i])
+                if self.id_prefix:
+                    sample_id = self.id_prefix + str(i+1)
+                else:
+                    sample_id = str(i+1)
+                passage = row["text"]
+                if self.normalize:
+                    passage = normalize_passage(passage)
+                ctxs[sample_id] = BiEncoderPassage(passage, row["title"])
+
 class CsvCtxSrc(RetrieverData):
     def __init__(
         self,
@@ -253,7 +279,6 @@ class CsvCtxSrc(RetrieverData):
                 if self.normalize:
                     passage = normalize_passage(passage)
                 ctxs[sample_id] = BiEncoderPassage(passage, row[self.title_col])
-
 
 class KiltCsvCtxSrc(CsvCtxSrc):
     def __init__(

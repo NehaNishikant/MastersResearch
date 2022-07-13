@@ -6,6 +6,6 @@ dpr_wiki:
   id_prefix: 'wiki:'
 
 stqa_wiki:
-  _target_: dpr.data.retriever_data.CsvCtxSrc
-  _file: data.wikipedia
-  _id_prefix:
+  _target_: dpr.data.retriever_data.JsonCtxSrc
+  file: "/projects/tir3/users/nnishika/stqa_corpus.json"
+  id_prefix: ''

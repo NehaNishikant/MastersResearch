@@ -1,9 +1,6 @@
 #!/usr/bin/bash
-#SBATCH --mem=16gb                   # Job memory request
-#SBATCH --time=0                      # Time limit hrs:min:sec
+#SBATCH --mem=256gb #I think?                   # Job memory request
 #SBATCH --gres=gpu:1                # Number of gpu
-#SBATCH --cpus-per-task=4            # Number of CPU cores per task
-#SBATCH --output=./log/%j.log   # Standard output and error log, the program output will be here
 ​
 # you can always have this
 eval "$(conda shell.bash hook)"

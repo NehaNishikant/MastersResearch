@@ -141,8 +141,6 @@ if __name__ == '__main__':
         id2doc = {k: {"title":v[0], "text": v[1]} for k, v in id2doc.items()}
     # title2text = {v[0]:v[1] for v in id2doc.values()}
     logger.info(f"Corpus size {len(id2doc)}")
-   
-    print("id2doc last record: ", list(id2doc.items())[-1])
 
 
     logger.info("Encoding questions and searching")
@@ -233,6 +231,7 @@ if __name__ == '__main__':
                     sp = batch_ann[idx]["sp"]
 
                     print("sp: ", sp)
+                    print("rp: ", retrieved_titles)
 
                     # assert len(set(sp)) == 2 #commented out bc for stqa it's not 2
                     type_ = batch_ann[idx]["type"]

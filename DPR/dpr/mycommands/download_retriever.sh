@@ -13,10 +13,6 @@ conda activate dpr
 ​
 export TQDM_DISABLE=1
 # code
-python dense_retriever.py \
-    model_file=/home/nnishika/DPR/dpr/downloads/checkpoint/retriever/single/nq/bert-base-encoder.cp \
-    qa_dataset=stqa_dev \
-    ctx_datsets=["stqa_wiki"] \
-    encoded_ctx_filex=["/projects/tir3/users/nnishika/StqaIndexDPR*"] \
-    batch_size=1 \
-    out_file=dprout/out-stqa.json
+
+python data/download_data.py \
+    --resource checkpoint.retriever.single.nq.bert-base-encoder 

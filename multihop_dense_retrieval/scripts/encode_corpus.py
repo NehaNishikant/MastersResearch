@@ -57,6 +57,7 @@ def main():
         n_gpu = torch.cuda.device_count()
         print("n_gpu: ", n_gpu)
     else:
+        print("on gpu")
         device = torch.device("cuda", args.local_rank)
         n_gpu = 1 #this is hardcoded.
         # torch.distributed.init_process_group(init_method='env://', backend='nccl') #original code 
@@ -76,11 +77,15 @@ def main():
         model = CtxEncoder(bert_config, args)
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 
+    # writes id2doc
     eval_dataset = EmDataset(
         tokenizer, args.predict_file, args.max_q_len, args.max_c_len, args.is_query_embed, args.embed_save_path)
     eval_dataloader = DataLoader(
         eval_dataset, batch_size=args.predict_batch_size, collate_fn=em_collate, pin_memory=True, num_workers=args.num_workers)
 
+    # embeds docs
+    # uncomment later
+    """
     assert args.init_checkpoint != ""
     model = load_saved(model, args.init_checkpoint, exact=False)
     model.to(device)
@@ -99,11 +104,12 @@ def main():
     elif n_gpu > 1:
         model = torch.nn.DataParallel(model)
 
-    print("Neha before")
+    # print("Neha before")
     embeds = predict(model, eval_dataloader)
-    print("Neha after")
+    # print("Neha after")
     print(embeds.size())
     np.save(args.embed_save_path, embeds.cpu().numpy())
+    """
 
 def predict(model, eval_dataloader):
     if type(model) == list:

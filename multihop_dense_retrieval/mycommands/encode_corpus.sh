@@ -15,6 +15,9 @@ export OMP_NUM_THREADS=1
 
 # python -m torch.distributed.launch --nproc_per_node=2 scripts/encode_corpus.py \
 
+
+#ARCHIVED because out of memory errors. Instead used encode_corpus_chunks
+
 CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 \
 scripts/encode_corpus.py \
     --do_predict \

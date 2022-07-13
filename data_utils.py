@@ -61,14 +61,18 @@ def stqa_corpus_to_mdr():
     f_in = open('/projects/tir3/users/nnishika/corpus-enwiki-20200511-cirrussearch-parasv2.jsonl', 'r')
     #data = json.load(f_in)
 
-    f_out = open("/projects/tir3/users/nnishika/stqa_corpus_clean.json", "a")
+    f_out = open("/projects/tir3/users/nnishika/stqa_corpus.json", "w")
 
+    lines = []
     for line in f_in.readlines():
         v = json.loads(line)
-        if v["para"] != "FAILED PARSING":
-            f_out.write(json.dumps({"title": v["title"], "text": v["para"]})+'\n')
+        lines.append(json.dumps({"title": v["title"], "text": v["para"], "id": v["para_id"]})+'\n')
 
-# stqa_corpus_to_mdr()
+    f_out.writelines(lines)
+    f_in.close()
+    f_out.close()
+
+stqa_corpus_to_mdr()
 
 def dpr_to_stqa():
 
@@ -403,7 +407,7 @@ def make_index_dirs():
 # make_index_dirs()
 
 """
-make scripts to encode each chunk of each stqa index
+make scripts to encode each chunk of each stqa corpus (for mdr)
 """
 def make_chunk_idx_scripts():
 
@@ -433,6 +437,37 @@ def make_chunk_idx_scripts():
     f_in.close()
 
 # make_chunk_idx_scripts()
+
+"""
+make scripts to encode each chunk of each stqa corpus (for dpr)
+"""
+def make_chunk_idx_scripts_dpr():
+
+    path = "DPR/mycommands/get_index_chunks/get_index" 
+    f_in = open(path+"0.sh", "r")
+    lines = f_in.readlines()
+
+    for counter in range(1, 50):
+        #create file
+        outfile = path+str(counter)+".sh"
+        f_out = open(outfile, "w")
+        f_out.close()
+        #add to file
+        f_out = open(outfile, "a")
+
+        for i in range(len(lines)):
+            line = lines[i]
+            if i == 19:
+                # print("here: ", counter)
+                line = line[:13] + str(counter)+ line[14:]
+            
+            f_out.write(line)
+
+        f_out.close()
+
+    f_in.close()
+
+# make_chunk_idx_scripts_dpr()
 
 """
 join all the indexes of each stqa corpus chunk
@@ -542,21 +577,29 @@ def sanity_check():
 
 # sanity_check()
 
-def chunk_json_to_tsv():
+"""
+make a file for all intermediary stqa question decomps
+to use in frankenstein
+"""
 
-    path = "/projects/tir3/users/nnishika/"
-    for i in range(1, 75):
-        f_in = open(path+"stqa_corpus_chunks/stqa_corpus_"+str(i)+".json", "r")
-        f_out = open(path+"stqa_corpus_chunks_dpr/stqa_corpus_"+str(i)+".tsv", "w")
-        tsv_writer = csv.writer(f_out, delimiter="\t")
-        tsv_writer.writerow(["id", "text", "title"])
-        counter = 1
-        for line in f_in.readlines():
-            record = json.loads(line)
-            tsv_writer.writerow([counter, record["text"], record["title"]])
+def get_stqa_decomps():
 
-        f_in.close()
-        f_out.close()
+    f_in = open("strategyqa/data/strategyqa/dev.json", "r")
+    data = json.load(f_in)
 
-chunk_json_to_tsv()
+    lines = []
+    for record in data:
+        decomps = record["decomposition"]
+        for i in range(len(decomps)-1):
+            obj = {
+                    "question": decomps[i],
+                    "answers": "N/A",
+                    "id": record["qid"]+"_"+str(i)
+            }
+            lines.append(json.dumps(obj)+"\n")
 
+    #create file
+    f_out = open("/projects/tir3/users/nnishika/stqa_intermediate_decomps.jsonl", "w")
+    f_out.writelines(lines)
+
+# get_stqa_decomps()

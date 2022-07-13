@@ -1,3 +1,5 @@
+"i think this is copied from generate_dense_embeddings.py"
+
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.

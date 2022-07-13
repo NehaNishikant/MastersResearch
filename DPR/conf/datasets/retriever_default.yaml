@@ -34,4 +34,8 @@ curatedtrec_test:
 
 stqa_dev:
   _target_: dpr.data.retriever_data.CsvQASrc
-  file: /home/nnishika/stqa-dev.csv 
+  file: /home/nnishika/stqa-dev.csv
+
+stqa_decomp:
+  _target_: dpr.data.retriever_data.JsonlQASrc
+  file: /projects/tir3/users/nnishika/stqa_intermediate_decomps.jsonl
