@@ -15,11 +15,11 @@ def calculate_score(args):
     with open(args.retrieved_paragraphs, "r", encoding="utf8") as f:
         all_retrieved_paragraphs = json.load(f)
 
-    instance_scores = []
+    # instance_scores = []
+    evidence = []
     for json_obj in dataset:
-        evidence_per_annotator = []
         for annotator in json_obj["evidence"]:
-            evidence_per_annotator.append(
+            evidence.append(
                 set(
                     evidence_id
                     for step in annotator

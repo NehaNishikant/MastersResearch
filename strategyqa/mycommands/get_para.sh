@@ -13,4 +13,4 @@ conda activate stqa
 ​
 export TQDM_DISABLE=1
 # code
-python3 ir_evaluation/get_paragraphs_by_config.py --config-file configs/strategy_qa/3_STAR_IR-Q.jsonnet --output-file retrieved.out --data data/strategyqa/dev.json
+python3 ir_evaluation/get_paragraphs_by_config.py --config-file configs/strategy_qa/3_STAR_IR-Q.jsonnet --output-file /home/nnishika/stqaout/retrieved.out --data data/strategyqa/dev.json

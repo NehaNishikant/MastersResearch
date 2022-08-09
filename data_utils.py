@@ -40,18 +40,56 @@ saves a smaller copy of stqa corpus of up to max_lines passages
 """
 def stqa_toy_corp(out, max_lines):
     f_in = open('/projects/tir3/users/nnishika/stqa_corpus.json', 'r')
-    f_out = open(out, "a")
+    f_out = open(out, "w")
 
     counter = 0
+    lines = []
     for line in f_in.readlines():
-        f_out.write(line)
+        lines.append(line)
+        counter +=1
         if counter > max_lines:
             break
 
+    f_out.writelines(lines)
     f_in.close()
     f_out.close()
 
-# stqa_toy_corp('stqa_corpus_med.json', 1000)
+# stqa_toy_corp('stqa_corpus_toy.json', 10)
+
+"""
+get stqa's dataset in a format to mdr codebase's liking
+"""
+def stqa_to_mdr():
+
+    f = open("strategyqa/data/strategyqa/dev.json", 'r')
+    data_in = json.load(f)
+    
+    lines = []
+
+    for record in data_in:
+       gold_paras= set()
+       for annotator in record["evidence"]:
+           for hop in annotator:
+               if isinstance(hop, list):
+                   for title in hop:
+                       gold_paras.add(title[0])
+
+       new_record = {
+           "question": record["question"],
+           "answer": record["answer"],
+           "sp": list(gold_paras),
+           "type": None
+           }
+       lines.append(json.dumps(new_record))
+
+    f_out = open("stqaout/stqa_to_hotpot_noduplicates.json", "w")
+    f_out.writelines(lines)
+
+    f.close()
+    f_out.close()
+
+# stqa_to_mdr()
+
 
 """
 get stqa's corpus in a format to mdr codebase's liking
@@ -72,7 +110,7 @@ def stqa_corpus_to_mdr():
     f_in.close()
     f_out.close()
 
-stqa_corpus_to_mdr()
+# stqa_corpus_to_mdr()
 
 def dpr_to_stqa():
 
@@ -415,7 +453,7 @@ def make_chunk_idx_scripts():
     f_in = open(path+"4.sh", "r")
     lines = f_in.readlines()
 
-    for counter in range(11, 75):
+    for counter in range(5, 75):
         #create file
         outfile = path+str(counter)+".sh"
         f_out = open(outfile, "w")
@@ -490,23 +528,24 @@ def join_idxs():
     for i in range(2, 75):
         extended_path = path + "StqaIndexChunks/StqaIndexChunk" + str(i)
         
-        np_path = extended_path + ".npy" 
-        chunk_idx = np.load(np_path).astype('float32')
-        index = np.vstack((index, chunk_idx))
+        #np_path = extended_path + ".npy" 
+        #chunk_idx = np.load(np_path).astype('float32')
+        #index = np.vstack((index, chunk_idx))
 
         f_chunk_dict = open(extended_path +  "/id2doc.json", "r")
         chunk_dict = json.load(f_chunk_dict)
         counter = 0
         for k, v in chunk_dict.items():
+            assert(len(v) == 4)
             d[str(int(k)+idx_offset)] = v
             counter +=1
         idx_offset += counter 
         f_chunk_dict.close()
 
     #save index
-    f_idx = open(path+"StqaIndex/StqaIndex.npy", "wb")
-    np.save(f_idx, index)
-    f_idx.close()
+    #f_idx = open(path+"StqaIndex/StqaIndex.npy", "wb")
+    #np.save(f_idx, index)
+    #f_idx.close()
 
     f_dict = open(path+"StqaIndex/id2doc.json", "w")
     json.dump(d, f_dict)
@@ -603,3 +642,40 @@ def get_stqa_decomps():
     f_out.writelines(lines)
 
 # get_stqa_decomps()
+
+"""
+WIP
+recalculate stats on MDR on stqa dataset because
+originally the sp for each question had duplicates
+since I wasn't careful when accounting for duplicates
+across annotaors when turning stqa dev.json into a
+form similar to hotpot for MDR
+"""
+def unduplicate_mdr_on_stqa():
+    f_in = open("mdrout/mdr_on_stqa_raw.out", "r")
+
+    in_lines = f_in.readlines()
+    out_lines = []
+
+    for i in range(len(in_lines)):
+        if in_lines[i][:2] == "sp":
+            #parse
+            #TODO: parsing is wrong. split  on "-"
+            titles = in_lines[i][7:-2].split(', \'')
+            titles = [x.split(', \"') for x in titles]
+            titles = [title[:-1] for sublist in titles for title in sublist]
+
+            no_duplicate_titles = list(set(titles))
+            titles_to_string = "[" + ', '.join(['\''+title+'\'' for title in titles]) + "]\n"
+            out_lines.append("sp:  "+titles_to_string)
+        elif in_lines[i][:2] == "rp":
+            # print(in_lines[i])
+            out_lines.append(in_lines[i])
+
+    f_out = open("mdrout/mdr_retrieved_on_stqa.out", "w")
+    f_out.writelines(out_lines)
+     
+    f_in.close()
+    f_out.close()
+
+# unduplicate_mdr_on_stqa()

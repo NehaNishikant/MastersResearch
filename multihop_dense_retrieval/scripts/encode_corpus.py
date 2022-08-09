@@ -69,13 +69,17 @@ def main():
         raise ValueError(
             "If `do_predict` is True, then `predict_file` must be specified.")
 
-    bert_config = AutoConfig.from_pretrained(args.model_name)
+    # uncomment later
+    # bert_config = AutoConfig.from_pretrained(args.model_name)
 
-    if "roberta" in args.model_name:
-        model = RobertaCtxEncoder(bert_config, args)
-    else:
-        model = CtxEncoder(bert_config, args)
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    # if "roberta" in args.model_name:
+    #     model = RobertaCtxEncoder(bert_config, args)
+    # else:
+    #     model = CtxEncoder(bert_config, args)
+    # tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+
+    #comment later
+    tokenizer = None
 
     # writes id2doc
     eval_dataset = EmDataset(

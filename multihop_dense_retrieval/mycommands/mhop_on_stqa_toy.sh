@@ -15,36 +15,23 @@ source /home/nnishika/miniconda3/etc/profile.d/conda.sh
 conda activate MDR
 ​
 export TQDM_DISABLE=1
+export OMP_NUM_THREADS=1
 
-#--mem=128gb i think
+# CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 \
 
 # you can't run this on tir GPUs bc it runs out of memory unless the index is small
 
-python scripts/eval/eval_mhop_retrieval.py \
-    data/hotpot/hotpot_qas_val.json \
-    data/hotpot_index/wiki_index.npy \
-    data/hotpot_index/wiki_id2doc.json \
+# --mem=384gb --nodes=3
+
+python scripts/eval/eval_mhop_retrieval.py /home/nnishika/stqaout/stqa_to_hotpot_toy.json \
+    /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \
+    /projects/tir3/users/nnishika/StqaIndex/id2doc.json \
     models/q_encoder.pt \
-    --batch-size 100 \
-    --beam-size 1 \
-    --topk 1 \
-    --shared-encoder \
-    --model-name roberta-base
-    # --gpu
-    # --save-path saving/mdr_hotpot_retrieval.json
-'''
-python scripts/eval/eval_mhop_retrieval.py \
-    data/hotpot/hotpot_qas_val.json \
-    # data/hotpot_index/wiki_index.npy \
-    # data/hotpot_index/wiki_id2doc.json \
-    /home/nnishika/StqaIndexToy/StqaIndexToy.npy \
-    /home/nnishika/StqaIndexToy/id2doc.json \
-    models/q_encoder.pt \
-    --batch-size 100 \
+    --batch-size 1 \
     --beam-size 1 \
     --topk 1 \
     --shared-encoder \
     --model-name roberta-base \
-    --gpu
-    # --save-path saving/mdr_hotpot_retrieval.json
-'''
+    --save-path /home/nnishika/mdrout/mdr_stqa_retrieval_toy.json
+#   --gpu
+

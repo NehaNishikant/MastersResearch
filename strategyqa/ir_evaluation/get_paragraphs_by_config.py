@@ -28,8 +28,8 @@ def get_paragraphs(args):
         paragraphs_objs = instance["metadata"]["paragraphs"]
         if paragraphs_objs is not None:
             retrieved_paragraphs[instance["metadata"]["qid"]] = [
-                #p["evidence_id"] for p in paragraphs_objs
-                p["title"] for p in paragraphs_objs
+                p["evidence_id"] for p in paragraphs_objs
+                #p["title"] for p in paragraphs_objs
             ]
         else:
             retrieved_paragraphs[instance["metadata"]["qid"]] = []

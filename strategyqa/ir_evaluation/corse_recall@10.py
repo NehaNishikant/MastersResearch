@@ -32,7 +32,18 @@ def calculate_score(args):
 
         score_per_annotator = []
         for evidence in evidence_per_annotator:
-            score = recall(evidence, retrieved_paragraphs) if len(evidence) > 0 else 0
+
+            coarse_evidence = []
+            for e in evidence:
+                if str.isnumeric(e[-1]):
+                    idx = len(e)
+                    while str.isnumeric(e[idx-1]):
+                        idx-=1
+                    coarse_evidence.append(e[:idx-1]) #-1 to get rid of dash as well
+                else:
+                    coarse_evidence.append(e)
+
+            score = recall(coarse_evidence, retrieved_paragraphs) if len(evidence) > 0 else 0
             score_per_annotator.append(score)
 
         annotator_maximum = max(score_per_annotator)

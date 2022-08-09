@@ -13,18 +13,17 @@ conda activate MDR
 export TQDM_DISABLE=1
 export OMP_NUM_THREADS=1
 
-# python -m torch.distributed.launch --nproc_per_node=2 scripts/encode_corpus.py \
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 \
-scripts/encode_corpus.py \
+
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 \
+    scripts/encode_corpus.py \
     --do_predict \
-    --predict_batch_size 1 \
+    --predict_batch_size 1000 \
     --model_name roberta-base \
     --predict_file /projects/tir3/users/nnishika/stqa_corpus_chunks/stqa_corpus_67.json \
     --init_checkpoint /home/nnishika/multihop_dense_retrieval/models/doc_encoder.pt \
     --embed_save_path /projects/tir3/users/nnishika/StqaIndexChunks/StqaIndexChunk67 \
     --fp16 \
     --max_c_len 300 \
-    --num_workers 20
-    # --local_rank 0
-
+    --num_workers 20 \
+    --local_rank 0

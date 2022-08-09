@@ -21,15 +21,15 @@ export OMP_NUM_THREADS=1
 
 # you can't run this on tir GPUs bc it runs out of memory unless the index is small
 
-# --mem=384gb
+# --mem=384gb --nodes=3
 
 python scripts/eval/eval_mhop_retrieval.py /home/nnishika/stqaout/stqa_to_hotpot.json \
     /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \
     /projects/tir3/users/nnishika/StqaIndex/id2doc.json \
     models/q_encoder.pt \
     --batch-size 1 \
-    --beam-size 10 \
-    --topk 10 \
+    --beam-size 5 \
+    --topk 5 \
     --shared-encoder \
     --model-name roberta-base \
     --save-path /home/nnishika/mdrout/mdr_stqa_retrieval_top10.json

@@ -34,3 +34,4 @@ git add requirements_base.txt
 git add requirements_mdr.txt
 git add requirements_dpr.txt
 git add requirements_stqa.txt
+git add test/readme.txt

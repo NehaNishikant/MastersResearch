@@ -337,6 +337,7 @@ def main(cfg: DictConfig):
     id_prefixes = []
     ctx_sources = []
     for ctx_src in cfg.ctx_datatsets:
+        print("ctx source: ", ctx_src)
         ctx_src = hydra.utils.instantiate(cfg.ctx_sources[ctx_src])
         id_prefixes.append(ctx_src.id_prefix)
         ctx_sources.append(ctx_src)

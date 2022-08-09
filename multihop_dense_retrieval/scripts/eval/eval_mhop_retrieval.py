@@ -138,7 +138,12 @@ if __name__ == '__main__':
     logger.info(f"Loading corpus...")
     id2doc = json.load(open(args.corpus_dict))
     if isinstance(id2doc["0"], list):
-        id2doc = {k: {"title":v[0], "text": v[1]} for k, v in id2doc.items()}
+        for k, v in id2doc.items():
+            if len(v) == 4:
+                id2doc[k] = {"title": v[0], "text": v[1], "para_id": v[3]}
+            else:
+                id2doc[k] = {"title":v[0], "text": v[1]}
+
     # title2text = {v[0]:v[1] for v in id2doc.values()}
     logger.info(f"Corpus size {len(id2doc)}")
 
@@ -206,11 +211,20 @@ if __name__ == '__main__':
                 hop1_titles = []
                 paths, path_titles = [], []
                 for _ in range(args.topk):
+
                     path_ids = ranked_pairs[_]
                     hop_1_id = I[idx, path_ids[0]]
                     hop_2_id = I_[idx, path_ids[0], path_ids[1]]
-                    retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
-                    retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
+
+                    hop1_title = id2doc[str(hop_1_id)]["title"]
+                    hop2_title = id2doc[str(hop_2_id)]["title"]
+                    if "para_id" in id2doc[str(hop_1_id)]:
+                        hop1_title = hop1_title + "-" + str(id2doc[str(hop_1_id)]["para_id"])
+                        hop2_title = hop2_title + "-" + str(id2doc[str(hop_2_id)]["para_id"])
+                    retrieved_titles.append(hop1_title)
+                    retrieved_titles.append(hop2_title)
+                    # retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
+                    # retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
 
                     paths.append([str(hop_1_id), str(hop_2_id)])
                     path_titles.append([id2doc[str(hop_1_id)]["title"], id2doc[str(hop_2_id)]["title"]])

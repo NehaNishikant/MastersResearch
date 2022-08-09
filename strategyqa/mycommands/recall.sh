@@ -13,4 +13,6 @@ conda activate stqa
 ​
 export TQDM_DISABLE=1
 # code
-python ir_evaluation/recall@10.py --data data/strategyqa/dev.json --retrieved-paragraphs dpr-retrieved.out
+
+# python ir_evaluation/recall@10.py --data data/strategyqa/dev.json --retrieved-paragraphs dpr-retrieved.out
+python ir_evaluation/recall@10.py --data data/strategyqa/dev.json --retrieved-paragraphs /home/nnishika/stqaout/retrieved.out --output-file /home/stqaout/recall
