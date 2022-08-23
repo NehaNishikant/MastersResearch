@@ -1,0 +1,41 @@
+/var/spool/slurmd/job540445/slurm_script: line 4: ​: command not found
+/var/spool/slurmd/job540445/slurm_script: line 10: ​: command not found
+[nltk_data] Downloading package stopwords to
+[nltk_data]     /home/nnishika/nltk_data...
+[nltk_data]   Package stopwords is already up-to-date!
+INFO:__main__:src imported
+INFO:src.data.dataset_readers.strategy_qa_reader:initializing reader:
+INFO:src.data.dataset_readers.strategy_qa_reader:super done
+INFO:src.data.dataset_readers.strategy_qa_reader:instance variables initialized
+INFO:src.data.dataset_readers.strategy_qa_reader:saved custom decompositions, if there were any
+INFO:src.data.dataset_readers.strategy_qa_reader:waiting for lock
+INFO:filelock:Lock 140228714682744 acquired on cache.lock
+INFO:src.data.dataset_readers.strategy_qa_reader:obtained lock
+INFO:src.data.dataset_readers.strategy_qa_reader:updating train cache:
+INFO:src.data.dataset_readers.strategy_qa_reader:train cache updated
+INFO:src.data.dataset_readers.strategy_qa_reader:test cache updated
+INFO:src.data.dataset_readers.strategy_qa_reader:questies cache updated
+INFO:filelock:Lock 140228714682744 released on cache.lock
+INFO:src.data.dataset_readers.strategy_qa_reader:initializing reader:
+INFO:src.data.dataset_readers.strategy_qa_reader:super done
+INFO:src.data.dataset_readers.strategy_qa_reader:instance variables initialized
+INFO:src.data.dataset_readers.strategy_qa_reader:saved custom decompositions, if there were any
+INFO:src.data.dataset_readers.strategy_qa_reader:waiting for lock
+INFO:filelock:Lock 140226636689872 acquired on cache.lock
+INFO:src.data.dataset_readers.strategy_qa_reader:obtained lock
+INFO:src.data.dataset_readers.strategy_qa_reader:updating train cache:
+INFO:src.data.dataset_readers.strategy_qa_reader:train cache updated
+INFO:src.data.dataset_readers.strategy_qa_reader:test cache updated
+INFO:src.data.dataset_readers.strategy_qa_reader:questies cache updated
+INFO:filelock:Lock 140226636689872 released on cache.lock
+INFO:__main__:dataset readers initialized
+INFO:__main__:Reading the dataset:
+INFO:__main__:Reading file at data/strategyqa/dev.json
+INFO:__main__:dataset loaded
+/home/nnishika/strategyqa
+/home/nnishika/strategyqa
+  0%|          | 0/229 [00:00<?, ?it/s]100%|██████████| 229/229 [00:00<00:00, 5069.76it/s]
+INFO:__main__:dataset read
+INFO:__main__:wrote to file
+bad bm25 count:  0
+bad gold count:  0

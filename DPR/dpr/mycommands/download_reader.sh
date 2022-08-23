@@ -15,4 +15,4 @@ export TQDM_DISABLE=1
 # code
 
 python data/download_data.py \
-    --resource data.reader.nq.single.train 
+    --resource checkpoint.reader.nq-single.hf-bert-base 

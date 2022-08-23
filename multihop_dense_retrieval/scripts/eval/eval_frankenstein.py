@@ -52,7 +52,7 @@ def fill_subq(subq, subq_answers):
         if subq[i] == "#":
             j = i+1
         numstr = " "
-        while j<len(subq) and isdigit(sub_q[j])
+        while j<len(subq) and sub_q[j].isdigit():
             numstr += s[j]
             j +=1
       
@@ -66,58 +66,17 @@ def fill_subq(subq, subq_answers):
     else:
         i +=1
 
-"""
-def get_paths(subqs, subq_idx, retrieved_doc_ids, answers):
-
-    id subq_idx >= len(subqs):
-        return [[]]
-
-    subq = subqs[subq_idx]
+def build_query(query_obj):
     
-
-    #make query (+contexts of previous hops)
-    query_components = [subq] + retrieved_doc_ids
-    query = [subq] + [id2doc[str(doc_id)] for doc_id in retrieved_doc_ids]
-
-    # encode query
-    query_encodes = tokenizer.encode_plus(query, max_length=args.max_q_len, pad_to_max_length=True, return_tensors="pt")
-    query_encodes = move_to_cuda(dict(query_encodes))
-    q_embed = model.encode_q(query_encodes["input_ids"], query_encodes["attention_mask"], query_encodes.get("token_type_ids", None))
-    q_embed_numpy = q_embed.cpu().contiguous().numpy()
-
-    # gets beam_size number of docs that have min dist away from question
-    # D, I = distances and IDs of these^ docs    
-    # shape = 1 x beam_size 
-    D, I = index.search(q_embed_numpy, args.beam_size)           #TODO: figure out how to build this up
-
-    all_query_chains = []
-    all_distances = []
-    all_ids = []
-    for _, doc_id in enumerate(I[0]): #loops thru each doc ID from the search for b_idx^th question
+    q = [query_obj["subq"]]
+    for doc_id in query_obj["docs"]:
         doc = id2doc[str(doc_id)]["text"]
         if "roberta" in  args.model_name and doc.strip() == "":
             doc = id2doc[str(doc_id)]["title"]
-            D[0][_] = float("-inf")
 
-        # TODO: GET ANSWER USING DPR
-        # shape = 
-        (_D, _I, query_chains) = get_paths(subqs, subq_idx+1, retrieved_doc_ids + [doc_id], answers + [answer])
-        all_distances.append(_D)
-        all_distances.append(_I)
+        q.append(doc)
 
-        for query_chain in query_chains:
-            all_query_chains.append(query_components + query_chain)
-        
-    # shape = 1 x beam_size x 1 x 1 x ...
-    dims = []
-    for i in range(subq_idx+1, len(subqs)):
-        dims.append(i+1)
-    D_expanded = np.expand_dims(D, dims)
-    I_expanded = np.expand_dims(I, dims)
-    D_final = np.stack(all_distances, axis=-1) + D_expanded
-    I_final = np.stack(all_ids, axis=-1) + I_expanded
-    return (D_final, I_final, all_query_chains)
-"""
+    return tuple(q)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -143,11 +102,8 @@ if __name__ == '__main__':
     
     logger.info("Loading data...")
     # dataset items
-    ds_items = [json.loads(_) for _ in open(args.raw_data).readlines()]
-
-    # # filter
-    # if args.only_eval_ans:
-    #     ds_items = [_ for _ in ds_items if _["answer"][0] not in ["yes", "no"]]
+    # ds_items = [json.loads(_) for _ in open(args.raw_data).readlines()]
+    ds_items = json.load(open(args.raw_data))
 
     logger.info("Loading trained model...")
     bert_config = AutoConfig.from_pretrained(args.model_name)
@@ -174,18 +130,20 @@ if __name__ == '__main__':
 
     if args.save_index:
         faiss.write_index(index, "data/hotpot_index/wiki_index_hnsw_roberta")
-    
+        
     logger.info(f"Loading corpus...")
     id2doc = json.load(open(args.corpus_dict))
     if isinstance(id2doc["0"], list):
-        id2doc = {k: {"title":v[0], "text": v[1]} for k, v in id2doc.items()}
-    # title2text = {v[0]:v[1] for v in id2doc.values()}
+        for k, v in id2doc.items():
+            if len(v) == 4:
+                id2doc[k] = {"title": v[0], "text": v[1], "para_id": v[3]}
+            else:
+                id2doc[k] = {"title":v[0], "text": v[1]}
+
     logger.info(f"Corpus size {len(id2doc)}")
-    
+
 
     logger.info("Encoding questions and searching")
-    # all questions in dataset
-    # questions = [_["question"][:-1] if _["question"].endswith("?") else _["question"] for _ in ds_items]
     for record in ds_items:
         
         subqs = ([subq[:-1] for subq in record["decomposition"]])
@@ -198,111 +156,117 @@ if __name__ == '__main__':
 
         query_objects = [{
             "subq": subqs[0],
-            "docs": [],
-            "answers": []
+            "docs": []
+            # "answers": []
         }]
+
 
         for subq_index in range(len(subqs)):
 
-            queries = ... #extract from from query_objects
-            queries_encodes = tokenizer.batch_encode_plus(queries, max_length=args.max_q_len, pad_to_max_length=True, return_tensors="pt")
-            queries_encodes = move_to_cuda(dict(queries_encodes))
-            q_embeds = model.encode_q(queries_encodes["input_ids"], queries_encodes["attention_mask"], queries_encodes.get("token_type_ids", None))
-            q_embeds_numpy = q_embeds.cpu().contiguous().numpy()
+            print("subq index: ", subq_index)
 
-            # gets beam_size number of docs that have min dist away from question
-            # D, I = distances and IDs of these^ docs    
-            # shape = num queries x beam_size 
-            # num queries = beam_size ^ (subq_index)
-            D, I = index.search(q_embeds_numpy, args.beam_size)
-            
+            with torch.no_grad():
 
-            new_query_objects = [] #reset queries. build for next round
-            for q_idx in len(query_objects):
-                old_query = queries[q_idx]
-                for _, doc_id in enumerate(I[q_idx]): #loops thru each doc ID from the search for b_idx^th query
-                    doc = id2doc[str(doc_id)]["text"]
-                    if "roberta" in  args.model_name and doc.strip() == "":
-                        doc = id2doc[str(doc_id)]["title"]
-                        D[q_idx][_] = float("-inf")
+                #builds and checks queries
+                queries = [build_query(query_obj) for query_obj in query_objects] 
+                assert(len(queries) == args.beam_size ** subq_index)
+                for q in query_objects:
+                    assert(len(q["docs"]) == subq_index)
+        
+        
+                #encodes queries
+                queries_encodes = tokenizer.batch_encode_plus(queries, max_length=args.max_q_len, pad_to_max_length=True, return_tensors="pt")
+                queries_encodes = move_to_cuda(dict(queries_encodes))
+                q_embeds = model.encode_q(queries_encodes["input_ids"], queries_encodes["attention_mask"], queries_encodes.get("token_type_ids", None))
+                q_embeds_numpy = q_embeds.cpu().contiguous().numpy()
 
-                    if subq_index+1 < len(subqs):
-                        # TODO: obtain answer
-                        answer = ...
-                        answers = old_query["answers"] + [answer]
-                        subq = fill_subq(subqs[subq_idx+1], answers)
-                        new_query_obj = {
-                            "subq": subq,
-                            "docs": old_query["docs"] + [doc_id],
-                            "answers": answers
-                        }
-                        new_queries.append([])
-
-            shape = [1, args.beam_size]
-            for i in range(subq_index):
-                shape.append(args.beam_size)
-            D = D.reshape(shape)
-            I = I.reshape(shape)
-
-            # aggregate path scores
-            # path_scores[a][b][c] = score of question a picking doc b 
-            # (1st hop) + score of query(a+b) picking doc c (2nd hop)
-            #path_scores = np.expand_dims(D, axis=2) + D_
-            path_scores = np.expand_dims(path_scores, axis=-1) + D
-            path_docs.append(I)
-
-            # for idx in range(bsize): # gets top k paths for each question
-
-            search_scores = path_scores[0]
-
-
-            # i^th row = (a, b) = indices in search scores for i^th best score
-            # meaning hop1 = doc a, hop2 = doc b
-            # (before transpose: i^th column)
-            # ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
-            #                                (args.beam_size, args.beam_size))).transpose()
-
-            ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
-                                        shape[1:])).transpose()
-
-
-            retrieved_titles = []
-            hop1_titles = []
-            paths, path_titles = [], []
-            for _ in range(args.topk):                     
-                path_ids = ranked_pairs[_] #indices in search scores for _th best score
-
-                # hop_1_id = I[0, path_ids[0]] #doc a for hop 1
-                # hop_2_id = I_[0, path_ids[0], path_ids[1]] #doc b for hop 2
-                hop_ids = []
-                for subq_idx in range(len(subqs)): #go through all subqs
-                    indices = [0] + path_ids[:subq_idx+1]
-                    hop_ids.append(path_docs[subq_idx][indices])
-
-                # retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
-                # retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
-                # paths.append([str(hop_1_id), str(hop_2_id)])
-                # path_titles.append([id2doc[str(hop_1_id)]["title"], id2doc[str(hop_2_id)]["title"]])
-                paths.append([str(hop_id) for hop_id in hop_ids])
-                path_titles.append([id2doc[str(hop_id)]["title"] for hop_id in hop_ids])
-                for hop_id in hop_ids:
-                    retrieved_titles.append(id2doc[str(hop_id)]["title"])
-
+                # gets beam_size number of docs that have min dist away from question
+                # D, I = distances and IDs of these^ docs    
+                # shape = num queries x beam_size 
+                # num queries = beam_size ^ (subq_index)
+                D, I = index.search(q_embeds_numpy, args.beam_size)
                 
-                # hop1_titles.append(id2doc[str(hop_1_id)]["title"])
-            
-            # if args.only_eval_ans:
-            #     gold_answers = batch_ann[0]["answer"]
-            #     concat_p = "yes no "
-            #     for p in paths:
-            #         concat_p += " ".join([id2doc[doc_id]["title"] + " " + id2doc[doc_id]["text"] for doc_id in p])
-            #     metrics.append({
-            #         "question": batch_ann[0]["question"],
-            #         "ans_recall": int(para_has_answer(gold_answers, concat_p, simple_tokenizer)),
-            #         "type": batch_ann[0].get("type", "single")
-            #     })
-                
-            # else:
+
+                new_query_objects = [] #reset queries. build for next round
+                for q_idx in range(len(query_objects)):
+                    old_query_obj = query_objects[q_idx]
+                    for _, doc_id in enumerate(I[q_idx]): #loops thru each doc ID from the search for b_idx^th query
+                        doc = id2doc[str(doc_id)]["text"]
+                        if "roberta" in  args.model_name and doc.strip() == "":
+                            doc = id2doc[str(doc_id)]["title"]
+                            D[q_idx][_] = float("-inf")
+
+                        if subq_index+1 < len(subqs):
+                            # TODO: obtain answer
+                            # answer = ...
+                            # answers = old_query_obj["answers"] + [answer]
+                            subq = subqs[subq_index+1] #fill_subq(subqs[subq_idx+1], answers)
+
+                            new_query_obj = {
+                                "subq": subq,
+                                "docs": old_query_obj["docs"] + [doc_id]
+                                # "answers": answers
+                            }
+                            new_query_objects.append(new_query_obj)
+
+                query_objects = new_query_objects
+
+                shape = [1, args.beam_size]
+                for i in range(subq_index):
+                    shape.append(args.beam_size)
+                D = D.reshape(shape)
+                I = I.reshape(shape)
+
+                # aggregate path scores
+                # path_scores[a][b][c] = score of question a picking doc b 
+                # (1st hop) + score of query(a+b) picking doc c (2nd hop)
+                # path_scores = np.expand_dims(D, axis=2) + D_
+                assert(np.expand_dims(path_scores, axis=-1) == (shape[:-1]+[1]))
+                path_scores = np.expand_dims(path_scores, axis=-1) + D
+                assert(path_scores.shape == D.shape)
+                path_docs.append(I)
+
+                # for idx in range(bsize): # gets top k paths for each question
+
+
+        #path scores assembled for all hops. Now pick the best path.
+        search_scores = path_scores[0]
+        assert(search_scores.shape == shape[1:])
+
+
+        # i^th row = (a, b) = indices in search scores for i^th best score
+        # meaning hop1 = doc a, hop2 = doc b
+        # (before transpose: i^th column)
+        # ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
+        #                                (args.beam_size, args.beam_size))).transpose()
+
+        ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
+                                    shape[1:])).transpose()
+
+
+        retrieved_titles = []
+        hop1_titles = []
+        paths, path_titles = [], []
+        for _ in range(args.topk):                     
+            path_ids = ranked_pairs[_] #indices in search scores for _th best score
+
+            # hop_1_id = I[0, path_ids[0]] #doc a for hop 1
+            # hop_2_id = I_[0, path_ids[0], path_ids[1]] #doc b for hop 2
+            hop_ids = []
+            for subq_idx in range(len(subqs)): #go through all subqs
+                indices = [0] + path_ids[:subq_idx+1]
+                hop_ids.append(path_docs[subq_idx][indices])
+
+            # retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
+            # retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
+            # paths.append([str(hop_1_id), str(hop_2_id)])
+            # path_titles.append([id2doc[str(hop_1_id)]["title"], id2doc[str(hop_2_id)]["title"]])
+            paths.append([str(hop_id) for hop_id in hop_ids])
+            path_titles.append([id2doc[str(hop_id)]["title"] for hop_id in hop_ids])
+            for hop_id in hop_ids:
+                if "para_id" in id2doc[str(hop_id)]:
+                    retrieved_titles.append(id2doc[str(hop_id)]["title"] + "-" + str(id2doc[str(hop_1_id)]["para_id"]))
+        
             sp = record["sp"]
 
             print("sp: ", sp)
@@ -337,11 +301,11 @@ if __name__ == '__main__':
             for path in paths:
                 # candidate_chains.append([[id2doc[path[0]], id2doc[path[1]]]])
                 # unsure why it's wrapped in an extra set of square brackets? i will remove that
-                candidate_chains.append([id2doc[hopid] for hop_id in path])
+                candidate_chains.append([id2doc[hop_id] for hop_id in path])
             
             retrieval_outputs.append({
-                "_id": batch_ann[idx]["_id"],
-                "question": batch_ann[idx]["question"],
+                "_id": record["qid"],
+                "question": record["question"],
                 "candidate_chains": candidate_chains,
                 # "sp": sp_chain,
                 # "answer": gold_answers,

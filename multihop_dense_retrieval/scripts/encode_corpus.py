@@ -69,17 +69,13 @@ def main():
         raise ValueError(
             "If `do_predict` is True, then `predict_file` must be specified.")
 
-    # uncomment later
-    # bert_config = AutoConfig.from_pretrained(args.model_name)
+    bert_config = AutoConfig.from_pretrained(args.model_name)
 
-    # if "roberta" in args.model_name:
-    #     model = RobertaCtxEncoder(bert_config, args)
-    # else:
-    #     model = CtxEncoder(bert_config, args)
-    # tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-
-    #comment later
-    tokenizer = None
+    if "roberta" in args.model_name:
+        model = RobertaCtxEncoder(bert_config, args)
+    else:
+        model = CtxEncoder(bert_config, args)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 
     # writes id2doc
     eval_dataset = EmDataset(
@@ -88,8 +84,6 @@ def main():
         eval_dataset, batch_size=args.predict_batch_size, collate_fn=em_collate, pin_memory=True, num_workers=args.num_workers)
 
     # embeds docs
-    # uncomment later
-    """
     assert args.init_checkpoint != ""
     model = load_saved(model, args.init_checkpoint, exact=False)
     model.to(device)
@@ -113,7 +107,6 @@ def main():
     # print("Neha after")
     print(embeds.size())
     np.save(args.embed_save_path, embeds.cpu().numpy())
-    """
 
 def predict(model, eval_dataloader):
     if type(model) == list:

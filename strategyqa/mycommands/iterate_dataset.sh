@@ -1,6 +1,9 @@
 #!/usr/bin/bash
-#SBATCH --mem=256gb #I think?                   # Job memory request
+#SBATCH --mem=16gb                   # Job memory request
+#SBATCH --time=0                      # Time limit hrs:min:sec
 #SBATCH --gres=gpu:1                # Number of gpu
+#SBATCH --cpus-per-task=4            # Number of CPU cores per task
+#SBATCH --output=./log/%j.log   # Standard output and error log, the program output will be here
 ​
 # you can always have this
 eval "$(conda shell.bash hook)"
@@ -10,7 +13,11 @@ conda activate stqa
 ​
 export TQDM_DISABLE=1
 # code
-python3 -m src.models.iterative.iterate_dataset \
-    --data data/strategyqa/train.json \
-    --output-file /home/nnishika/stqaout/mdr_trainfile.json \
-    -g 0
+
+# mem = 256gb
+
+python -m src.models.iterative.iterate_dataset \
+    -g 0 \
+    --data data/strategyqa/dev.json \
+    --output-file /home/nnishika/stqaout/mdr_evalfile.json
+

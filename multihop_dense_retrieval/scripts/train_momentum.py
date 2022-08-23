@@ -53,6 +53,7 @@ def main():
             "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
         n_gpu = torch.cuda.device_count()
     else:
+        print("gpu")
         device = torch.device("cuda", args.local_rank)
         n_gpu = 1
         torch.distributed.init_process_group(backend='nccl')

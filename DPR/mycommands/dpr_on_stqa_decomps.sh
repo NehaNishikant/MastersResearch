@@ -22,4 +22,4 @@ python dense_retriever.py \
     ctx_datatsets=[stqa_wiki] \
     encoded_ctx_files=[\"/projects/tir3/users/nnishika/StqaIndexDPR/*\"] \
     batch_size=1 \
-    out_file=dprout/dpr_on_stqa_decomps.json
+    out_file=/home/nnishika/dprout/dpr_on_stqa_decomps.json

@@ -14,11 +14,11 @@ conda activate dpr
 export TQDM_DISABLE=1
 # code
 
-python train_extractive_reader.py \
-    prediction_results_file=/home/nnishika/dprout/dpr_reader_on_stqa_decomps.json \
+python3 train_extractive_reader.py \
+    prediction_results_file=junk.out \
     eval_top_docs=10 \
-    dev_files=/home/nnishika/dprout/dpr_on_stqa_decomps.json \
+    dev_files=/home/nnishika/DPR/dpr/downloads/data/retriever_results/nq/single-adv-hn/test.json \
     model_file=/home/nnishika/DPR/dpr/downloads/checkpoint/reader/nq-single/hf-bert-base.cp \
-    train.dev_batch_size=80 \
+    train.dev_batch_size=8 \
     passages_per_question_predict=100 \
     encoder.sequence_length=350

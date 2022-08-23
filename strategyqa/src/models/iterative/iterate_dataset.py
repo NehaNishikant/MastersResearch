@@ -93,11 +93,12 @@ def main(
                 "question": json_obj["question"], 
                 "answers": [json_obj["answer"]],
                 "_id": json_obj["qid"],
-                "type": None, #for now
+                "type": "bridge",
+                "bridge": None 
                 "pos_paras": paragraphs_pos,
                 "neg_paras": paragraphs_neg,
                 }
-        output.append(record)
+        output.append(json.dumps(record))
 
         # break #comment later
 
@@ -108,7 +109,8 @@ def main(
 
     if output_file != None:
         f = open(output_file, "w")
-        json.dump(output, f)
+        # json.dump(output, f)
+        f.writelines(output)
     
     logger.info("wrote to file")
 

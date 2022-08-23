@@ -56,6 +56,33 @@ def stqa_toy_corp(out, max_lines):
 
 # stqa_toy_corp('stqa_corpus_toy.json', 10)
 
+def get_gold_paras_for_stqa_anno(anno):
+    para_names = set()
+    for ev in anno:
+        for psg_list in ev:
+            if isinstance(psg_list, list):
+                for psg_name in psg_list:
+                    para_names.add(psg_name)
+
+    return list(para_names)
+
+"""
+gets gold paragraphs for a stqa record
+in the dev dataset.
+"""
+def get_gold_paras_for_stqa_record(record):
+    para_names = set()
+
+    for anno in record["evidence"]:
+        for ev in anno:
+            for psg_list in ev:
+                if isinstance(psg_list, list):
+                    for psg_name in psg_list:
+                        para_names.add(psg_name)
+    
+    return list(para_names)
+
+
 """
 get stqa's dataset in a format to mdr codebase's liking
 """
@@ -67,17 +94,11 @@ def stqa_to_mdr():
     lines = []
 
     for record in data_in:
-       gold_paras= set()
-       for annotator in record["evidence"]:
-           for hop in annotator:
-               if isinstance(hop, list):
-                   for title in hop:
-                       gold_paras.add(title[0])
 
        new_record = {
            "question": record["question"],
            "answer": record["answer"],
-           "sp": list(gold_paras),
+           "sp": get_gold_paras_for_stqa_record(record),
            "type": None
            }
        lines.append(json.dumps(new_record))
@@ -260,13 +281,7 @@ def stqa_to_mdr_train():
         transformed_record["_id"] = record["qid"]
         transformed_record["type"] = None # for now
 
-        para_names = set()
-        for anno in record["evidence"]:
-            for ev in anno:
-                for psg_list in ev:
-                    if isinstance(psg_list, list):
-                        for psg_name in psg_list:
-                            para_names.add(psg_name)
+        para_names = get_gold_paras_for_stqa_record(record)
 
         t2t_f = open("stqa_title_to_text.json", "r")
         t2t = json.load(t2t_f)
@@ -332,7 +347,8 @@ def coarse_recall():
 # coarse_recall()
 
 """
-truthfully idk. ARCHIVED.
+wanted to run stqa's recall@10 script on
+mdr on stqa retrieval results. ARCHIVED.
 """
 def mdr_for_stqa():
 
@@ -430,6 +446,38 @@ def format_json(infile):
 
 # format_json("StqaIndexChunk1/id2doc.json")
 # format_json("/projects/tir3/users/nnishika/StqaIndex2/id2doc.json")
+
+def format_jsonl(infile):
+
+    f_in = open(infile, "r")
+    f_out = open(infile[:-5]+"_formatted.json", "w")
+
+    lines = []
+    for line in f_in.readlines():
+        d = json.loads(line)
+        lines.append(json.dumps(d, indent=4))
+
+    f_out.writelines(lines)
+
+    f_in.close()
+    f_out.close()
+
+# format_jsonl("mdrout/mdr_stqa_retrieval_top5.json")
+
+def json_to_jsonlines(infile):
+
+    f_in = open(infile, "r")
+    data = json.load(f_in)
+    
+    lines = []
+    for record in data:
+        lines.append(json.dumps(record)+"\n")
+
+    f_out = open(infile[:-5]+"_jsonl.jsonl", "w")
+    f_out.writelines(lines)
+
+# json_to_jsonlines("stqaout/finetune_mdr/mdr_evalfile.json")
+# json_to_jsonlines("stqaout/finetune_mdr/mdr_trainfile.json")
 
 """
 make directories to save all StqaChunk indexes
@@ -643,39 +691,257 @@ def get_stqa_decomps():
 
 # get_stqa_decomps()
 
+
 """
-WIP
-recalculate stats on MDR on stqa dataset because
-originally the sp for each question had duplicates
-since I wasn't careful when accounting for duplicates
-across annotaors when turning stqa dev.json into a
-form similar to hotpot for MDR
+qid to question +metadata dictionary for stqa
 """
-def unduplicate_mdr_on_stqa():
-    f_in = open("mdrout/mdr_on_stqa_raw.out", "r")
+def qid_to_q():
 
-    in_lines = f_in.readlines()
-    out_lines = []
+    f = open("strategyqa/data/strategyqa/dev.json", "r")
+    data = json.load(f)
 
-    for i in range(len(in_lines)):
-        if in_lines[i][:2] == "sp":
-            #parse
-            #TODO: parsing is wrong. split  on "-"
-            titles = in_lines[i][7:-2].split(', \'')
-            titles = [x.split(', \"') for x in titles]
-            titles = [title[:-1] for sublist in titles for title in sublist]
+    d = {}
+    for record in data:
+        d[record["qid"]] = record
 
-            no_duplicate_titles = list(set(titles))
-            titles_to_string = "[" + ', '.join(['\''+title+'\'' for title in titles]) + "]\n"
-            out_lines.append("sp:  "+titles_to_string)
-        elif in_lines[i][:2] == "rp":
-            # print(in_lines[i])
-            out_lines.append(in_lines[i])
+    f_out = open("stqaout/qid_to_question.json", "w")
+    json.dump(d, f_out, indent=4)
 
-    f_out = open("mdrout/mdr_retrieved_on_stqa.out", "w")
-    f_out.writelines(out_lines)
-     
+    f.close()
+    f_out.close()
+
+# qid_to_q()
+
+
+"""
+Turns the stqa retrieval similar to standardized format
+so I can compare stqa on stqa and mdr on stqa numbers.
+"""
+def format_stqa_retrieval():
+
+    f_in = open("stqaout/retrieved.json", "r")
+    data = json.load(f_in)
+
+    f_qid = open("stqaout/qid_to_question.json", "r")
+    d_qid = json.load(f_qid)
+    
+    d_out = []
+    for k, v in data.items():
+       question = d_qid[k]
+       sp = get_gold_paras_for_stqa_record(d_qid[k])
+       rp = v
+
+       d = {}
+       d["qid"] = k
+       d["sp"] = sp
+       d["rp"] = rp
+       d_out.append(d)
+
+    f_out = open("stqaout/retrieved_reformatted.json", "w")
+    json.dump(d_out, f_out, indent=4)
+
+    f_in.close()
+    f_qid.close()
+    f_out.close()
+
+# format_stqa_retrieval()
+
+"""
+Turns mdr on stqa retrieval into a standardized format
+"""
+def format_mdr_retrieval(infile):
+
+    f_in = open(infile, "r")
+    
+    f_qid = open("stqaout/qid_to_question.json", "r")
+    d_qid = json.load(f_qid)
+
+    d_out = []
+    for line in f_in.readlines():
+        record = json.loads(line)
+
+        d = {}
+        d["qid"] = record["_id"]
+        d["sp"] = get_gold_paras_for_stqa_record(d_qid[record["_id"]]) 
+        d["rp"] = []
+        for chain in record["candidate_chains"]:
+            for passage in chain:
+                d["rp"].append(passage["title"]+"-"+str(passage["para_id"]))
+
+        d_out.append(d)
+
+
+    print(infile[:-5]+"_reformatted.json")
+    f_out = open(infile[:-5]+"_reformatted.json", "w")
+    json.dump(d_out, f_out, indent=4)
+
+    f_in.close()
+    f_qid.close()
+    f_out.close()
+
+# format_mdr_retrieval("mdrout/mdr_stqa_retrieval_top5.json")
+# format_mdr_retrieval("mdrout/mdr_stqa_retrieval_top10.json")
+
+
+"""
+gets my version of recall for retrieval files of the aformentioned format
+(% of sp covered by rp for each q averaged across all q)
+"""
+def my_recall(in_file, out_file):
+
+    f_in = open(in_file, "r")
+    data = json.load(f_in)
+
+    recall = 0
+    for record in data:
+        covered = 0
+        for true_p in record["sp"]:
+            if true_p in record["rp"]:
+                covered +=1
+
+        recall += covered/len(record["sp"])
+
+    recall /= len(data)
+    f_out = open(out_file, "w")
+    f_out.write("My recall: " + str(recall))
+
     f_in.close()
     f_out.close()
 
-# unduplicate_mdr_on_stqa()
+# my_recall("stqaout/retrieved_reformatted.json", "stqaout/my_recall.out")
+# my_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/my_recall_mdr_on_stqa_top5.out")
+# my_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/my_recall_mdr_on_stqa_top10.out")
+
+
+"""
+same as my recall but done separately for each annotator and the highest
+is taken
+(from stqa's recall@10)
+"""
+def stqa_recall(in_file, out_file):
+
+    f_in = open(in_file, "r")
+    data = json.load(f_in)
+
+    f_qid = open("stqaout/qid_to_question.json", "r")
+    d_qid = json.load(f_qid)
+
+    recall = 0
+    for record in data:
+        stqa_record = d_qid[record["qid"]]
+
+        anno_recall = 0
+        for anno in stqa_record["evidence"]:
+            covered = 0
+            gold_anno = get_gold_paras_for_stqa_anno(anno)
+            for true_p in gold_anno:
+                if true_p in record["rp"]:
+                    covered +=1            
+
+            if len(gold_anno) > 0:
+                anno_recall = max(anno_recall, covered/len(gold_anno))
+
+        recall += anno_recall
+            
+    recall /= len(data)
+    f_out = open(out_file, "w")
+    f_out.write("Stqa recall: " + str(recall))
+
+    f_in.close()
+    f_out.close()
+
+# stqa_recall("stqaout/retrieved_reformatted.json", "stqaout/stqa_recall.out")
+# stqa_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/stqa_recall_mdr_on_stqa_top5.out")
+# stqa_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/stqa_recall_mdr_on_stqa_top10.out")
+
+"""
+% of questions that have at least one of their gold passages
+covered by the retrieved passages
+from mdr's eval_mhop_retrieval
+"""
+def mdr_recall(in_file, out_file):
+
+    f_in = open(in_file, "r")
+    data = json.load(f_in)
+
+    recall = 0
+    for record in data:
+        covered = 0
+        for true_p in record["sp"]:
+            if true_p in record["rp"]:
+                covered +=1
+
+        if covered > 0:
+            recall += 1 
+
+    recall /= len(data)
+    f_out = open(out_file, "w")
+    f_out.write("MDR recall: " + str(recall))
+
+    f_in.close()
+    f_out.close()
+
+# mdr_recall("stqaout/retrieved_reformatted.json", "stqaout/mdr_recall.out")
+# mdr_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/mdr_recall_mdr_on_stqa_top5.out")
+# mdr_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/mdr_recall_mdr_on_stqa_top10.out")
+
+# manually fix finetune mdr files
+"""
+first round of iterate_dataset didn't add the bridge on the finetune files.
+adding manually.
+"""
+def add_bridge(infile):
+
+    f_in = open(infile, "r")
+    
+    lines = []
+    for line in f_in.readlines():
+        record = json.loads(line)
+        record["type"] = "bridge"
+        record["bridge"] = None
+        lines.append(json.dumps(record)+"\n")
+
+    f_out = open(infile[:-6]+"2.jsonl", "w")
+    f_out.writelines(lines)
+
+    f_in.close()
+    f_out.close()
+
+# add_bridge("stqaout/finetune_mdr/mdr_trainfile.jsonl")
+# add_bridge("stqaout/finetune_mdr/mdr_evalfile.jsonl")
+
+def reformat_finetune_mdr_file(infile):
+
+    f_in = open(infile, "r")
+
+    lines = []
+    for line in f_in.readlines():
+        record = json.loads(line)
+        pos_paras = []
+        neg_paras = []
+        for para in record["pos_paras"]:
+            pos_paras.append({
+                "title": para["title"],
+                "text": para["content"],
+                "id": int(para["evidence_id"].split('-')[-1])
+                })
+        for para in record["neg_paras"]:
+            neg_paras.append({
+                "title": para["title"],
+                "text": para["content"],
+                "id": int(para["evidence_id"].split('-')[-1])
+                })
+
+        record["pos_paras"] = pos_paras
+        record["neg_paras"] = neg_paras
+
+        lines.append(json.dumps(record)+"\n")
+
+    f_out = open(infile[:-6]+"_reformatted.jsonl", "w")
+    f_out.writelines(lines)
+
+    f_in.close()
+    f_out.close()
+
+# reformat_finetune_mdr_file("stqaout/finetune_mdr/mdr_trainfile.jsonl")
+# reformat_finetune_mdr_file("stqaout/finetune_mdr/mdr_evalfile.jsonl")

@@ -18,6 +18,6 @@ python -m src.models.iterative.run_model \
     -g 0 \ 
     --qa-model-path /projects/tir3/users/nnishika/3_STAR_IR-Q.tar.gz \ 
     --paragraphs-source IR-Q \
-    --data data/strategyqa/train.json \ 
-    --output-predictions-file stqaout/run_model_out.jsonl
+    --data data/strategyqa/train.json #\ 
+#    --output-predictions-file stqaout/run_model_out.jsonl
 
