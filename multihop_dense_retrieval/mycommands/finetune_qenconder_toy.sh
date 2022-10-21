@@ -15,23 +15,27 @@ source /home/nnishika/miniconda3/etc/profile.d/conda.sh
 conda activate MDR
 ​
 export TQDM_DISABLE=1
-export OMP_NUM_THREADS=1
 
-# CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 \
 
-# you can't run this on tir GPUs bc it runs out of memory unless the index is small
+# -- mem = 256 --gres=gpu:1
 
-# --mem=384gb --gres=gpu:1
-
-python scripts/eval/eval_mhop_retrieval.py /home/nnishika/stqaout/stqa_to_hotpot.json \
-    /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \
-    /projects/tir3/users/nnishika/StqaIndex/id2doc.json \
-    models/q_encoder.pt \
-    --batch-size 1 \
-    --beam-size 10 \
-    --topk 10 \
-    --shared-encoder \
-    --model-name roberta-base \
-    --save-path /home/nnishika/mdrout/mdr_stqa_retrieval_top10.json
-#   --gpu
-
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python scripts/train_momentum.py \
+    --do_train \
+    --prefix 0 \
+    --predict_batch_size 1 \
+    --model_name roberta-base \
+    --train_batch_size 1 \
+    --learning_rate 1e-5 \
+    --fp16 \
+    --train_file /home/nnishika/stqaout/finetune_mdr/mdr_trainfile_toy.jsonl \
+    --predict_file /home/nnishika/stqaout/finetune_mdr/mdr_evalfile_toy.jsonl \
+    --seed 16 \
+    --eval-period -1 \
+    --max_c_len 300 \
+    --max_q_len 70 \
+    --max_q_sp_len 350 \
+    --momentum \
+    --k 76800 \
+    --m 0.999 \
+    --temperature 1 \
+    --init-retriever models/q_encoder.pt

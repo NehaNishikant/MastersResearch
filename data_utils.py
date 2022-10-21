@@ -2,7 +2,6 @@ import pickle as pkl
 import json
 import os
 import csv
-from rouge import Rouge
 
 def stqa_to_dpr(infile, outfile):
 
@@ -111,6 +110,42 @@ def stqa_to_mdr():
 
 # stqa_to_mdr()
 
+"""
+get stqa's dataset in a format to mdr codebase's liking
+"""
+def stqa_decomps_to_mdr():
+
+    f = open("strategyqa/data/strategyqa/dev.json", 'r')
+    data_in = json.load(f)[0]
+    
+    lines = []
+
+    for i in range(len(data_in["decomposition"])):
+        subq = data_in["decomposition"][i]
+
+        gold_paras = []
+        for anno in data_in["evidence"]:
+            ev = anno[i]
+            for psg_list in ev:
+                if isinstance(psg_list, list):
+                    for psg_name in psg_list:
+                        gold_paras.append(psg_name)
+        if len(gold_paras) > 0:
+            new_record = {
+                "question": subq,
+                "answer": None,
+                "sp": gold_paras, 
+                "type": None
+                }
+            lines.append(json.dumps(new_record)+"\n")
+
+    f_out = open("stqaout/stqa_decomps_to_hotpot.json", "w")
+    f_out.writelines(lines)
+
+    f.close()
+    f_out.close()
+
+# stqa_decomps_to_mdr()
 
 """
 get stqa's corpus in a format to mdr codebase's liking
@@ -945,3 +980,130 @@ def reformat_finetune_mdr_file(infile):
 
 # reformat_finetune_mdr_file("stqaout/finetune_mdr/mdr_trainfile.jsonl")
 # reformat_finetune_mdr_file("stqaout/finetune_mdr/mdr_evalfile.jsonl")
+
+"""
+testing some retrieved passages
+"""
+def test():
+    f = open("/projects/tir3/users/nnishika/StqaIndex/id2doc.json", "r")
+    data = json.load(f)
+
+    for record in data.values():
+        # if record[0] == 'Albany, Minnesota' and record[3] == 5:
+        #     print("record: ", record)
+        # if record[0] == 'Albany, Georgia' and record[3] ==35:
+        #     print("record: ", record)
+        if record[1] == 'The following schools have distinctions:':
+            print("record: ", record)
+
+    #hop1 retrieved
+    # print(data["19537564"]) 
+    # print(data["3429570"])
+
+    #hop2a
+    # print(data['19204826'])
+    # print(data['12211297'])
+
+    #hop2b
+    # print(data['18648485'])
+    # print(data['19204825'])
+    f.close()
+
+# test()
+
+"""
+test the query embeddings for frankenstein and mhop
+from scripts/eval/eval...
+"""
+def test_embeds():
+    
+    path = "mdrout/debugging_frank/encoded_query_"
+    for i in range(5):
+        frank = np.load(path+"frank_"+str(i)+".npy")
+        mhop = np.load(path+"mhop"+str(i)+".npy")
+    
+        # print("frank: ", frank)
+        # print("mhop: ", mhop)
+        # print(frank==mhop)
+        print(np.all(frank==mhop))
+
+# test_embeds()
+
+"""
+check metrics from frank on stqa log
+"""
+def frank_top1():
+
+    f_questions = open("strategyqa/data/strategyqa/dev.json", "r")
+    questions = json.load(f_questions)
+    f_questions.close()
+
+    f_log = open("multihop_dense_retrieval/log/559603.log", "r")
+    lines = f_log.readlines()[109:]
+    f_log.close()
+
+    f_id2doc = open("/projects/tir3/users/nnishika/StqaIndex/id2doc.json", "r")
+    id2doc = json.load(f_id2doc)
+    f_id2doc.close()
+
+    i = 0
+    q = 0
+    d = []
+    while i<len(lines):
+        
+        question = questions[q]
+        num_subq = len(question["decomposition"])
+
+        i += (num_subq*2)-1
+        final_p_id = lines[i][6:-3]
+        # print("final_p_id: ", final_p_id)
+
+        final_p = id2doc[final_p_id]
+        # print("final_: ", final_p)
+        title = final_p[0]+"-"+str(final_p[3])
+
+        d.append({"qid": question["qid"],
+            "sp": get_gold_paras_for_stqa_record(question),
+            "rp": [title]})
+
+        q+=1
+        i+=1
+
+        # if q == 2: #comment out later
+        #    break
+    
+    f_out = open("mdrout/frank_top1_retrieved.json", "w")
+    json.dump(d, f_out)
+    f_out.close()
+
+# frank_top1()
+
+"""
+currently debugging frankenstien by comparing
+behavior on queries from frankenstein to
+behavior from mhop. extracted queries from frank
+and reformatting to plug into mhop
+"""
+def frank_queries_to_mdr():
+
+    f_in = open("mdrout/debugging_frank/frank_queries.json", "r")
+    data = json.load(f_in)
+    f_in.close()
+
+    qid = "e0044a7b4d146d611e73"
+    lines = []
+    for k, v in data.items():
+        d = {
+            "question": v,
+            "_id": qid+"-"+k,
+            "answer": None,
+            "sp": None,
+            "type": None
+            }
+        lines.append(json.dumps(d)+"\n")
+
+    f_out = open("mdrout/debugging_frank/frank_queries_to_hotpot.json", "w")
+    f_out.writelines(lines)
+    f_out.close()
+
+# frank_queries_to_mdr()

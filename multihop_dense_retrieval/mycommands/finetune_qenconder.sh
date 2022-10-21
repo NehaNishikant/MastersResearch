@@ -27,8 +27,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python scripts/train_momentum.py \
     --train_batch_size 150 \
     --learning_rate 1e-5 \
     --fp16 \
-    --train_file /home/nnishika/stqaout/finetune_mdr/mdr_trainfile_reformatted.jsonl \
-    --predict_file /home/nnishika/stqaout/finetune_mdr/mdr_evalfile_reformatted.jsonl \
+    --train_file /home/nnishika/stqaout/finetune_mdr/mdr_trainfile.jsonl \
+    --predict_file /home/nnishika/stqaout/finetune_mdr/mdr_evalfile.jsonl \
     --seed 16 \
     --eval-period -1 \
     --max_c_len 300 \

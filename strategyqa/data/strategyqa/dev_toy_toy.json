@@ -1,0 +1,39 @@
+[
+    {
+        "qid": "e0044a7b4d146d611e73",
+        "term": "Albany, Georgia",
+        "description": "City in Georgia, United States",
+        "question": "Will the Albany in Georgia reach a hundred thousand occupants before the one in New York?",
+        "answer": false,
+        "facts": [
+            "Albany, GA has around 75,000 people",
+            "Albany, NY has almost 100,000 people"
+        ],
+        "decomposition": [
+            "What is the population of Albany, Georgia?"
+        ],
+        "evidence": [
+            [
+                [
+                    [
+                        "Albany, Georgia-1"
+                    ]
+                ]
+            ],
+            [
+                [
+                    [
+                        "Albany, Georgia-35"
+                    ]
+                ]
+            ],
+            [
+                [
+                    [
+                        "Albany, Georgia-1"
+                    ]
+                ]
+            ]
+        ]
+    }
+]

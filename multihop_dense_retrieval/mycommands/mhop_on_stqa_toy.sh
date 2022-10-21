@@ -21,7 +21,7 @@ export OMP_NUM_THREADS=1
 
 # you can't run this on tir GPUs bc it runs out of memory unless the index is small
 
-# --mem=384gb --nodes=3
+# --mem=384gb --gres=gpu:1
 
 python scripts/eval/eval_mhop_retrieval.py /home/nnishika/stqaout/stqa_to_hotpot_toy.json \
     /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \

@@ -4,7 +4,9 @@
 # This source code is licensed under the license found in the 
 # LICENSE file in the root directory of this source tree.
 """
-Evaluating trained retrieval model.
+Evaluating trained retrieval model
+on hardcoded queries instead of creating
+2nd hop query based on retrieved passage
 
 Usage:
 python eval_mhop_retrieval.py ${EVAL_DATA} ${CORPUS_VECTOR_PATH} ${CORPUS_DICT} ${MODEL_CHECKPOINT} \
@@ -56,7 +58,6 @@ if __name__ == '__main__':
     parser.add_argument('indexpath', type=str, default=None)
     parser.add_argument('corpus_dict', type=str, default=None)
     parser.add_argument('model_path', type=str, default=None)
-    parser.add_argument('--topk', type=int, default=2, help="topk paths")
     parser.add_argument('--num-workers', type=int, default=10)
     parser.add_argument('--max-q-len', type=int, default=70)
     parser.add_argument('--max-c-len', type=int, default=300)
@@ -149,14 +150,14 @@ if __name__ == '__main__':
 
 
     logger.info("Encoding questions and searching")
-    questions = [_["question"][:-1] if _["question"].endswith("?") else _["question"] for _ in ds_items]
+    questions = [_["question"] for _ in ds_items]
     metrics = []
     retrieval_outputs = []
     for b_start in tqdm(range(0, len(questions), args.batch_size)):
         print("b_start: ", b_start)
         with torch.no_grad():
-            batch_q = questions[b_start:b_start + args.batch_size]
-            batch_ann = ds_items[b_start:b_start + args.batch_size]
+            batch_q = questions[b_start:b_start + args.batch_size][0] #just take the first bc it's a list of queries already
+            # batch_ann = ds_items[b_start:b_start + args.batch_size]
             bsize = len(batch_q)
 
             print("queries: ", batch_q)
@@ -176,45 +177,9 @@ if __name__ == '__main__':
             # quit()
 
             D, I = index.search(q_embeds_numpy, args.beam_size)
+            print("I: ", I)
 
-            # 2hop search
-            query_pairs = []
-            for b_idx in range(bsize):
-                for _, doc_id in enumerate(I[b_idx]):
-                    doc = id2doc[str(doc_id)]["text"]
-                    if "roberta" in  args.model_name and doc.strip() == "":
-                        # doc = "fadeaxsaa" * 100
-                        doc = id2doc[str(doc_id)]["title"]
-                        D[b_idx][_] = float("-inf")
-                    query_pairs.append((batch_q[b_idx], doc))
-
-            batch_q_sp_encodes = tokenizer.batch_encode_plus(query_pairs, max_length=args.max_q_sp_len, pad_to_max_length=True, return_tensors="pt")
-            batch_q_sp_encodes = move_to_cuda(dict(batch_q_sp_encodes))
-            s1 = time.time()
-            q_sp_embeds = model.encode_q(batch_q_sp_encodes["input_ids"], batch_q_sp_encodes["attention_mask"], batch_q_sp_encodes.get("token_type_ids", None))
-            # print("Encoding time:", time.time() - s1)
-
-            
-            q_sp_embeds = q_sp_embeds.contiguous().cpu().numpy()
-
-
-            print("query pairs: ", query_pairs)           
-
-
-            s2 = time.time()
-            if args.hnsw:
-                q_sp_embeds = convert_hnsw_query(q_sp_embeds)
-            D_, I_ = index.search(q_sp_embeds, args.beam_size)
-
-            D_ = D_.reshape(bsize, args.beam_size, args.beam_size)
-            I_ = I_.reshape(bsize, args.beam_size, args.beam_size)
-
-            # aggregate path scores
-            path_scores = np.expand_dims(D, axis=2) + D_
-
-            if args.hnsw:
-                path_scores = - path_scores
-
+            """
             for idx in range(bsize):
                 search_scores = path_scores[idx]
                 ranked_pairs = np.vstack(np.unravel_index(np.argsort(search_scores.ravel())[::-1],
@@ -229,21 +194,19 @@ if __name__ == '__main__':
 
                     path_ids = ranked_pairs[_]
                     hop_1_id = I[idx, path_ids[0]]
-                    hop_2_id = I_[idx, path_ids[0], path_ids[1]]
 
                     hop1_title = id2doc[str(hop_1_id)]["title"]
-                    hop2_title = id2doc[str(hop_2_id)]["title"]
                     if "para_id" in id2doc[str(hop_1_id)]:
                         hop1_title = hop1_title + "-" + str(id2doc[str(hop_1_id)]["para_id"])
-                        hop2_title = hop2_title + "-" + str(id2doc[str(hop_2_id)]["para_id"])
                     retrieved_titles.append(hop1_title)
-                    retrieved_titles.append(hop2_title)
                     # retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
                     # retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
 
-                    paths.append([str(hop_1_id), str(hop_2_id)])
-                    path_titles.append([id2doc[str(hop_1_id)]["title"], id2doc[str(hop_2_id)]["title"]])
+                    paths.append(str(hop_1_id)) 
+                    path_titles.append(id2doc[str(hop_1_id)]["title"]) #, id2doc[str(hop_2_id)]["title"]])
                     hop1_titles.append(id2doc[str(hop_1_id)]["title"])
+            """
+            """
                 
                 if args.only_eval_ans:
                     gold_answers = batch_ann[idx]["answer"]
@@ -257,9 +220,9 @@ if __name__ == '__main__':
                     })
                     
                 else:
-                    sp = batch_ann[idx]["sp"]
+                    # sp = batch_ann[idx]["sp"]
 
-                    print("sp: ", sp)
+                    # print("sp: ", sp)
                     print("rp: ", retrieved_titles)
 
                     # assert len(set(sp)) == 2 #commented out bc for stqa it's not 2
@@ -325,4 +288,4 @@ if __name__ == '__main__':
             logger.info(f'\tAvg PR: {np.mean([m["p_recall"] for m in type2items[t]])}')
             logger.info(f'\tAvg P-EM: {np.mean([m["p_em"] for m in type2items[t]])}')
             logger.info(f'\tAvg 1-Recall: {np.mean([m["recall_1"] for m in type2items[t]])}')
-            logger.info(f'\tPath Recall: {np.mean([m["path_covered"] for m in type2items[t]])}')
+            logger.info(f'\tPath Recall: {np.mean([m["path_covered"] for m in type2items[t]])}')"""

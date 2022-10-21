@@ -16,7 +16,7 @@ conda activate MDR
 ​
 export TQDM_DISABLE=1
 
-#--mem=128gb i think
+#--mem=128gb --grs=gpu:1
 
 # you can't run this on tir GPUs bc it runs out of memory unless the index is small
 

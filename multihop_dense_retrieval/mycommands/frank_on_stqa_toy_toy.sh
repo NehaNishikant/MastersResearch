@@ -21,17 +21,17 @@ export OMP_NUM_THREADS=1
 
 # you can't run this on tir GPUs bc it runs out of memory unless the index is small
 
-# --mem=384gb --grs=gpu:1
+# --mem=256gb --gres=gpu:1
 
-python scripts/eval/eval_frankenstein.py /home/nnishika/strategyqa/data/strategyqa/dev.json \
+python scripts/eval/eval_frankenstein.py /home/nnishika/strategyqa/data/strategyqa/dev_toy_toy.json \
     /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \
     /projects/tir3/users/nnishika/StqaIndex/id2doc.json \
     models/q_encoder.pt \
     --batch-size 1 \
-    --beam-size 1 \
+    --beam-size 2 \
     --topk 1 \
     --shared-encoder \
     --model-name roberta-base \
-    --save-path /home/nnishika/mdrout/frank_stqa_retrieval_top1.json
+    --save-path /home/nnishika/mdrout/frank_stqa_retrieval_toy_toy.json
 #   --gpu
 

@@ -45,27 +45,6 @@ if (logger.hasHandlers()):
 console = logging.StreamHandler()
 logger.addHandler(console)
 
-def fill_subq(subq, subq_answers):
-    # fill in missing spots (ex: "#1") with answers from previous hops
-    i = 0
-    while i < len(subq):   
-        if subq[i] == "#":
-            j = i+1
-        numstr = " "
-        while j<len(subq) and sub_q[j].isdigit():
-            numstr += s[j]
-            j +=1
-      
-        if len(numstr) > 0:     
-            subq_answers_idx = int(numstr) - 1
-            assert(subq_answers_idx < len(subq_answers))
-            subq = squbq[:i] + subq_answers[subq_answers_idx] + subq[j:]
-            i = j
-        else:
-            i +=1
-    else:
-        i +=1
-
 def build_query(query_obj):
     
     q = [query_obj["subq"]]
@@ -76,6 +55,8 @@ def build_query(query_obj):
 
         q.append(doc)
 
+    if len(q) == 1:
+        return q[0]
     return tuple(q)
 
 if __name__ == '__main__':
@@ -104,6 +85,7 @@ if __name__ == '__main__':
     # dataset items
     # ds_items = [json.loads(_) for _ in open(args.raw_data).readlines()]
     ds_items = json.load(open(args.raw_data))
+    print("Dataset size: ", len(ds_items))
 
     logger.info("Loading trained model...")
     bert_config = AutoConfig.from_pretrained(args.model_name)
@@ -160,19 +142,25 @@ if __name__ == '__main__':
             # "answers": []
         }]
 
-
+        import json
+        f = open("/home/nnishika/mdrout/frank_queries.json", "w")
+        d = {}
         for subq_index in range(len(subqs)):
 
-            print("subq index: ", subq_index)
+            # print("subq index: ", subq_index)
 
             with torch.no_grad():
 
                 #builds and checks queries
-                queries = [build_query(query_obj) for query_obj in query_objects] 
+                queries = [build_query(query_obj) for query_obj in query_objects]
+                # print("queries: ", queries)
+                d[subq_index] = queries
+
                 assert(len(queries) == args.beam_size ** subq_index)
                 for q in query_objects:
                     assert(len(q["docs"]) == subq_index)
         
+                print("queries: ", queries)
         
                 #encodes queries
                 queries_encodes = tokenizer.batch_encode_plus(queries, max_length=args.max_q_len, pad_to_max_length=True, return_tensors="pt")
@@ -180,11 +168,19 @@ if __name__ == '__main__':
                 q_embeds = model.encode_q(queries_encodes["input_ids"], queries_encodes["attention_mask"], queries_encodes.get("token_type_ids", None))
                 q_embeds_numpy = q_embeds.cpu().contiguous().numpy()
 
+                # test
+                f_embeds = open("encoded_query_frank_"+str(subq_index)+".npy", "wb")
+                np.save(f_embeds, q_embeds_numpy)
+                f_embeds.close()
+                # quit()
+
                 # gets beam_size number of docs that have min dist away from question
                 # D, I = distances and IDs of these^ docs    
                 # shape = num queries x beam_size 
                 # num queries = beam_size ^ (subq_index)
                 D, I = index.search(q_embeds_numpy, args.beam_size)
+
+                print("I: ", I)
                 
 
                 new_query_objects = [] #reset queries. build for next round
@@ -221,17 +217,22 @@ if __name__ == '__main__':
                 # path_scores[a][b][c] = score of question a picking doc b 
                 # (1st hop) + score of query(a+b) picking doc c (2nd hop)
                 # path_scores = np.expand_dims(D, axis=2) + D_
-                assert(np.expand_dims(path_scores, axis=-1) == (shape[:-1]+[1]))
+
+                assert((np.asarray(np.expand_dims(path_scores, axis=-1).shape) == np.asarray(shape[:-1]+[1])).all())
                 path_scores = np.expand_dims(path_scores, axis=-1) + D
-                assert(path_scores.shape == D.shape)
-                path_docs.append(I)
+                assert((np.asarray(path_scores.shape) == np.asarray(D.shape)).all())
+                path_docs.append(np.copy(I))
 
                 # for idx in range(bsize): # gets top k paths for each question
 
 
+        json.dump(d, f)
+        f.close()
+
+
         #path scores assembled for all hops. Now pick the best path.
         search_scores = path_scores[0]
-        assert(search_scores.shape == shape[1:])
+        assert((np.asarray(search_scores.shape) == np.asarray(shape[1:])).all())
 
 
         # i^th row = (a, b) = indices in search scores for i^th best score
@@ -247,16 +248,21 @@ if __name__ == '__main__':
         retrieved_titles = []
         hop1_titles = []
         paths, path_titles = [], []
-        for _ in range(args.topk):                     
-            path_ids = ranked_pairs[_] #indices in search scores for _th best score
+        ranked_pairs = ranked_pairs[:args.topk]
+        assert((np.asarray(ranked_pairs.shape) == np.asarray([args.topk, len(subqs)])).all())
+        for path_ids in ranked_pairs:                     
+            # ranked_pairs[_] = indices in search scores for _th best score
 
             # hop_1_id = I[0, path_ids[0]] #doc a for hop 1
             # hop_2_id = I_[0, path_ids[0], path_ids[1]] #doc b for hop 2
             hop_ids = []
+            
             for subq_idx in range(len(subqs)): #go through all subqs
-                indices = [0] + path_ids[:subq_idx+1]
-                hop_ids.append(path_docs[subq_idx][indices])
+                indices = np.array([[x] for x in path_ids[:subq_idx+1]])
+                flat_indices = np.ravel_multi_index(indices, path_docs[subq_idx][0].shape)
+                hop_ids.append(np.take_along_axis(path_docs[subq_idx][0], flat_indices, axis=None)[0])
 
+            # print("hop ids: ", hop_ids)
             # retrieved_titles.append(id2doc[str(hop_1_id)]["title"])
             # retrieved_titles.append(id2doc[str(hop_2_id)]["title"])
             # paths.append([str(hop_1_id), str(hop_2_id)])
@@ -265,8 +271,10 @@ if __name__ == '__main__':
             path_titles.append([id2doc[str(hop_id)]["title"] for hop_id in hop_ids])
             for hop_id in hop_ids:
                 if "para_id" in id2doc[str(hop_id)]:
-                    retrieved_titles.append(id2doc[str(hop_id)]["title"] + "-" + str(id2doc[str(hop_1_id)]["para_id"]))
+                    retrieved_titles.append(id2doc[str(hop_id)]["title"] + "-" + str(id2doc[str(hop_id)]["para_id"]))
         
+            """ 
+            print("record: ", record)
             sp = record["sp"]
 
             print("sp: ", sp)
@@ -294,7 +302,7 @@ if __name__ == '__main__':
                 'recall_1': recall_1,
                 'path_covered': int(path_covered)
             })
-
+            """
 
             # saving when there's no annotations
             candidate_chains = []
