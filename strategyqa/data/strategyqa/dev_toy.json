@@ -81,5 +81,59 @@
                 ]
             ]
         ]
+    },
+    {
+        "qid": "c69397b4341b65ed080f",
+        "term": "Saint Vincent and the Grenadines",
+        "description": "Country in the Caribbean",
+        "question": "Is the language used in Saint Vincent and the Grenadines rooted in English?",
+        "answer": true,
+        "facts": [
+            "The primary language spoken in Saint Vincent and the Grenadines is Vincentian Creole.",
+            "Vincentian Creole is English-based, with elements of French, Antillean Creole, and indigenous South American and African languages."
+        ],
+        "decomposition": [
+            "What language is used in Saint Vincent and the Grenadines?",
+            "Is #1 based in English?"
+        ],
+        "evidence": [
+            [
+                [
+                    [
+                        "Demographics of Saint Vincent and the Grenadines-9"
+                    ]
+                ],
+                [
+                    [
+                        "Saint Vincent and the Grenadines-59"
+                    ],
+                    "operation"
+                ]
+            ],
+            [
+                [
+                    [
+                        "Vincentian Creole-1"
+                    ]
+                ],
+                [
+                    [
+                        "Vincentian Creole-1"
+                    ]
+                ]
+            ],
+            [
+                [
+                    [
+                        "Saint Vincent and the Grenadines-59"
+                    ]
+                ],
+                [
+                    [
+                        "Saint Vincent and the Grenadines-59"
+                    ]
+                ]
+            ]
+        ]
     }
 ]

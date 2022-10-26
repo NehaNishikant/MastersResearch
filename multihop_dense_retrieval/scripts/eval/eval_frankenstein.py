@@ -126,12 +126,31 @@ if __name__ == '__main__':
 
 
     logger.info("Encoding questions and searching")
+    counter = 0
+    retrieval_outputs = []
     for record in ds_items:
+        print(counter)
+        counter +=1
         
-        subqs = ([subq[:-1] for subq in record["decomposition"]])
+        # get rid of operation hops
+        total_annotators = 3
+        is_operation = [0 for i in range(len(record["decomposition"]))]
+        for anno in record["evidence"]:
+            for i in range(len(anno)):
+                for psg_list in anno[i]:
+                    if psg_list == "operation":
+                        is_operation[i] += 1
 
-        metrics = []
-        retrieval_outputs = []
+        # subqs = ([subq[:-1] for subq in record["decomposition"]])
+        subqs = []
+        for i in range(len(record["decomposition"])):
+            if is_operation[i] < total_annotators/2:
+                subqs.append(record["decomposition"][i])
+        
+        args.beam_size = 10 // len(subqs)
+        args.topk = 10 // len(subqs)
+
+        # metrics = []
     
         path_scores = np.array([0]) #"D_final"
         path_docs = []
@@ -143,8 +162,8 @@ if __name__ == '__main__':
         }]
 
         import json
-        f = open("/home/nnishika/mdrout/frank_queries.json", "w")
-        d = {}
+        # f = open("/home/nnishika/mdrout/frank_queries.json", "w")
+        # d = {}
         for subq_index in range(len(subqs)):
 
             # print("subq index: ", subq_index)
@@ -154,13 +173,11 @@ if __name__ == '__main__':
                 #builds and checks queries
                 queries = [build_query(query_obj) for query_obj in query_objects]
                 # print("queries: ", queries)
-                d[subq_index] = queries
+                # d[subq_index] = queries
 
                 assert(len(queries) == args.beam_size ** subq_index)
                 for q in query_objects:
                     assert(len(q["docs"]) == subq_index)
-        
-                print("queries: ", queries)
         
                 #encodes queries
                 queries_encodes = tokenizer.batch_encode_plus(queries, max_length=args.max_q_len, pad_to_max_length=True, return_tensors="pt")
@@ -180,7 +197,7 @@ if __name__ == '__main__':
                 # num queries = beam_size ^ (subq_index)
                 D, I = index.search(q_embeds_numpy, args.beam_size)
 
-                print("I: ", I)
+                # print("I: ", I)
                 
 
                 new_query_objects = [] #reset queries. build for next round
@@ -226,8 +243,8 @@ if __name__ == '__main__':
                 # for idx in range(bsize): # gets top k paths for each question
 
 
-        json.dump(d, f)
-        f.close()
+        # json.dump(d, f)
+        # f.close()
 
 
         #path scores assembled for all hops. Now pick the best path.
@@ -310,22 +327,27 @@ if __name__ == '__main__':
                 # candidate_chains.append([[id2doc[path[0]], id2doc[path[1]]]])
                 # unsure why it's wrapped in an extra set of square brackets? i will remove that
                 candidate_chains.append([id2doc[hop_id] for hop_id in path])
-            
-            retrieval_outputs.append({
-                "_id": record["qid"],
-                "question": record["question"],
-                "candidate_chains": candidate_chains,
-                # "sp": sp_chain,
-                # "answer": gold_answers,
-                # "type": type_,
-                # "coverd_k": covered_k
-            })
+        
+        retrieval_outputs.append({
+            "qid": record["qid"],
+            "rp": retrieved_titles,
+            "subqs": subqs,
+            # "_id": record["qid"],
+            # "question": record["question"],
+            "candidate_chains": candidate_chains,
+            # "sp": sp_chain,
+            # "answer": gold_answers,
+            # "type": type_,
+            # "coverd_k": covered_k
+        })
 
     if args.save_path != "":
         with open(args.save_path, "w") as out:
-            for l in retrieval_outputs:
-                out.write(json.dumps(l) + "\n")
+            json.dump(retrieval_outputs, out, indent=4)
+            # for l in retrieval_outputs:
+            #     out.write(json.dumps(l) + "\n")
 
+    """
     logger.info(f"Evaluating {len(metrics)} samples...")
     type2items = collections.defaultdict(list)
     for item in metrics:
@@ -345,4 +367,4 @@ if __name__ == '__main__':
             logger.info(f'\tAvg PR: {np.mean([m["p_recall"] for m in type2items[t]])}')
             logger.info(f'\tAvg P-EM: {np.mean([m["p_em"] for m in type2items[t]])}')
             logger.info(f'\tAvg 1-Recall: {np.mean([m["recall_1"] for m in type2items[t]])}')
-            logger.info(f'\tPath Recall: {np.mean([m["path_covered"] for m in type2items[t]])}')
+            logger.info(f'\tPath Recall: {np.mean([m["path_covered"] for m in type2items[t]])}')"""

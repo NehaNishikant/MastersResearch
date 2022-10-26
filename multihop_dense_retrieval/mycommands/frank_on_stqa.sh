@@ -32,6 +32,6 @@ python scripts/eval/eval_frankenstein.py /home/nnishika/strategyqa/data/strategy
     --topk 1 \
     --shared-encoder \
     --model-name roberta-base \
-    --save-path /home/nnishika/mdrout/frank_stqa_retrieval_top1.json
+    --save-path /home/nnishika/mdrout/frank_stqa_retrieved_noop.json
 #   --gpu
 

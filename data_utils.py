@@ -981,6 +981,9 @@ def reformat_finetune_mdr_file(infile):
 # reformat_finetune_mdr_file("stqaout/finetune_mdr/mdr_trainfile.jsonl")
 # reformat_finetune_mdr_file("stqaout/finetune_mdr/mdr_evalfile.jsonl")
 
+
+## DEBUGGING FRANKENSTEIN:
+
 """
 testing some retrieved passages
 """
@@ -1038,7 +1041,7 @@ def frank_top1():
     questions = json.load(f_questions)
     f_questions.close()
 
-    f_log = open("multihop_dense_retrieval/log/559603.log", "r")
+    f_log = open("multihop_dense_retrieval/log/559603.log", "r") 
     lines = f_log.readlines()[109:]
     f_log.close()
 
@@ -1107,3 +1110,45 @@ def frank_queries_to_mdr():
     f_out.close()
 
 # frank_queries_to_mdr()
+
+
+"""
+interpret log files by getting titles from doc ids
+printed during evaluation
+"""
+def see_retrieved_docs(log_file):
+
+    f_log = open(log_file, "r") 
+    lines = f_log.readlines()[109:]
+    f_log.close()
+
+    f_id2doc = open("/projects/tir3/users/nnishika/StqaIndex/id2doc.json", "r")
+    id2doc = json.load(f_id2doc)
+    f_id2doc.close()
+
+    i = 0
+    subq_num = 0
+    while i<len(lines):
+        print(subq_num)
+
+        j = i+(2**subq_num)
+        lines[i] = lines[i][4:]
+        lines[j-1] = lines[j-1][:-1]
+        ids = []
+        for line in lines[i:j]:
+            ids_str = line[2:-2].split()
+            print(ids_str)
+            ids.append(ids_str[0])
+            ids.append(ids_str[1])
+
+        titles = []
+        for p_id in ids:
+            p = id2doc[p_id]
+            titles.append(p[0]+"-"+str(p[3]))
+        print(titles)
+
+        subq_num+=1
+        i = j + 2
+
+see_retrieved_docs("mdrout/debugging_frank/mhop_queries_log.log")
+# see_retrieved_docs("mdrout/debugging_frank/frank_queries_log.log")
