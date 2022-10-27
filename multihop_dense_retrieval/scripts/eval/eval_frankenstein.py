@@ -137,8 +137,8 @@ if __name__ == '__main__':
         is_operation = [0 for i in range(len(record["decomposition"]))]
         for anno in record["evidence"]:
             for i in range(len(anno)):
-                for psg_list in anno[i]:
-                    if psg_list == "operation":
+                for ev in anno[i]:
+                    if ev == "operation":
                         is_operation[i] += 1
 
         # subqs = ([subq[:-1] for subq in record["decomposition"]])
@@ -147,8 +147,8 @@ if __name__ == '__main__':
             if is_operation[i] < total_annotators/2:
                 subqs.append(record["decomposition"][i])
         
-        args.beam_size = 10 // len(subqs)
-        args.topk = 10 // len(subqs)
+        args.beam_size = 10 # // len(subqs)
+        args.topk = 10 # // len(subqs)
 
         # metrics = []
     

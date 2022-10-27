@@ -341,6 +341,8 @@ class StrategyQAReader(BaseDatasetReader):
         query = clean_query(question)
         results = get_elasticsearch_results(self._queries_cache, query)
 
+        # print("question: ", kwargs)
+
         if results is None:
             return {"queries": [query]}
         return {"unified": results, "queries": [query]}

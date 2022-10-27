@@ -94,7 +94,7 @@ def main(
                 "answers": [json_obj["answer"]],
                 "_id": json_obj["qid"],
                 "type": "bridge",
-                "bridge": None 
+                "bridge": None, 
                 "pos_paras": paragraphs_pos,
                 "neg_paras": paragraphs_neg,
                 }

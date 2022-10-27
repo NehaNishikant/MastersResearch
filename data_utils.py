@@ -817,6 +817,28 @@ def format_mdr_retrieval(infile):
 # format_mdr_retrieval("mdrout/mdr_stqa_retrieval_top5.json")
 # format_mdr_retrieval("mdrout/mdr_stqa_retrieval_top10.json")
 
+"""
+same as above, but the mdr output has already been
+formatted, just need to add "sp"
+"""
+def format_mdr_retrieval_2(infile):
+
+    f_in = open(infile, "r")
+    data = json.load(f_in)
+    f_in.close()
+    
+    f_qid = open("stqaout/qid_to_question.json", "r")
+    d_qid = json.load(f_qid)
+
+    for record in data:
+        record["sp"] = get_gold_paras_for_stqa_record(d_qid[record["qid"]])
+
+    f_out = open(infile[:-5]+"_reformatted.json", "w")
+    json.dump(data, f_out, indent=4)
+    f_out.close()
+
+# format_mdr_retrieval_2("mdrout/frank_stqa_retrieved_noop.json")
+
 
 """
 gets my version of recall for retrieval files of the aformentioned format
@@ -846,7 +868,7 @@ def my_recall(in_file, out_file):
 # my_recall("stqaout/retrieved_reformatted.json", "stqaout/my_recall.out")
 # my_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/my_recall_mdr_on_stqa_top5.out")
 # my_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/my_recall_mdr_on_stqa_top10.out")
-
+# my_recall("mdrout/frank_stqa_retrieved_noop_reformatted.json", "mdrout/my_recall_frank_on_stqa_top10divsubq")
 
 """
 same as my recall but done separately for each annotator and the highest
@@ -888,6 +910,7 @@ def stqa_recall(in_file, out_file):
 # stqa_recall("stqaout/retrieved_reformatted.json", "stqaout/stqa_recall.out")
 # stqa_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/stqa_recall_mdr_on_stqa_top5.out")
 # stqa_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/stqa_recall_mdr_on_stqa_top10.out")
+# stqa_recall("mdrout/frank_stqa_retrieved_noop_reformatted.json", "mdrout/stqa_recall_frank_on_stqa_top10divsubq")
 
 """
 % of questions that have at least one of their gold passages
@@ -919,6 +942,7 @@ def mdr_recall(in_file, out_file):
 # mdr_recall("stqaout/retrieved_reformatted.json", "stqaout/mdr_recall.out")
 # mdr_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/mdr_recall_mdr_on_stqa_top5.out")
 # mdr_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/mdr_recall_mdr_on_stqa_top10.out")
+# mdr_recall("mdrout/frank_stqa_retrieved_noop_reformatted.json", "mdrout/mdr_recall_frank_on_stqa_top10divsubq")
 
 # manually fix finetune mdr files
 """
@@ -1150,5 +1174,55 @@ def see_retrieved_docs(log_file):
         subq_num+=1
         i = j + 2
 
-see_retrieved_docs("mdrout/debugging_frank/mhop_queries_log.log")
+# see_retrieved_docs("mdrout/debugging_frank/mhop_queries_log.log")
 # see_retrieved_docs("mdrout/debugging_frank/frank_queries_log.log")
+
+
+## ...
+
+"""
+turn stqa decomps into a stqa-formatted dataset
+"""
+def get_stqa_decomps():
+
+    f_in = open("strategyqa/data/strategyqa/dev.json", "r")
+    data = json.load(f_in)
+    f_in.close()
+
+    d = []
+    for record in data:
+        # get rid of operation hops
+        total_annotators = 3
+        is_operation = [0 for i in range(len(record["decomposition"]))]
+        for anno in record["evidence"]:
+            for i in range(len(anno)):
+                for ev in anno[i]:
+                    if ev == "operation":
+                        is_operation[i] += 1
+
+        subqs = []
+        new_ev = []
+        for i in range(len(record["decomposition"])):
+            if is_operation[i] < total_annotators/2:
+                subqs.append((record["decomposition"][i], i))
+                new_ev.append([[] for anno in range(total_annotators)])
+                for anno in range(total_annotators):
+                    new_ev[-1][anno].append(record["evidence"][anno][i])
+        
+        for i in range(len(subqs)):
+            (q, decomp_id) = subqs[i]
+            d.append({
+                "qid": record["qid"]+"-"+str(decomp_id),
+                "term": record["term"],
+                "description": record["description"],
+                "question": q,
+                "answer": None,
+                "facts": None,
+                "decomposition": None,
+                "evidence": new_ev[i] 
+                })
+
+    f_out = open("stqaout/stqa_decomps.json", "w")
+    json.dump(d, f_out, indent=4)
+
+get_stqa_decomps() 
