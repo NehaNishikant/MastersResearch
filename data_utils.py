@@ -81,6 +81,17 @@ def get_gold_paras_for_stqa_record(record):
     
     return list(para_names)
 
+def get_gold_ids_for_updated_stqa_record(record):
+    psg_ids = set()
+
+    for anno in record["evidence"]:
+        for ev in anno:
+            for psg_list in ev:
+                if isinstance(psg_list, list):
+                    for (psg_name, psg_id) in psg_list:
+                        psg_ids.add(psg_id)
+    
+    return list(psg_ids)
 
 """
 get stqa's dataset in a format to mdr codebase's liking
@@ -756,21 +767,23 @@ def format_stqa_retrieval():
 
     f_in = open("stqaout/retrieved.json", "r")
     data = json.load(f_in)
+    f_in.close()
 
     f_qid = open("stqaout/qid_to_question.json", "r")
     d_qid = json.load(f_qid)
+    f_qid.close()
     
     d_out = []
     for k, v in data.items():
-       question = d_qid[k]
-       sp = get_gold_paras_for_stqa_record(d_qid[k])
-       rp = v
 
-       d = {}
-       d["qid"] = k
-       d["sp"] = sp
-       d["rp"] = rp
-       d_out.append(d)
+        sp = get_gold_paras_for_stqa_record(d_qid[k])
+        rp = v
+
+        d = {}
+        d["qid"] = k
+        d["sp"] = sp
+        d["rp"] = rp
+        d_out.append(d)
 
     f_out = open("stqaout/retrieved_reformatted.json", "w")
     json.dump(d_out, f_out, indent=4)
@@ -803,6 +816,7 @@ def format_mdr_retrieval(infile):
             for passage in chain:
                 d["rp"].append(passage["title"]+"-"+str(passage["para_id"]))
 
+        d["rp"] = list(set(d["rp"]))
         d_out.append(d)
 
 
@@ -823,6 +837,8 @@ formatted, just need to add "sp"
 """
 def format_mdr_retrieval_2(infile):
 
+    print("format mdr retrieval 2 (format oracle retrieved)")
+
     f_in = open(infile, "r")
     data = json.load(f_in)
     f_in.close()
@@ -838,6 +854,8 @@ def format_mdr_retrieval_2(infile):
     f_out.close()
 
 # format_mdr_retrieval_2("mdrout/frank_stqa_retrieved_noop.json")
+# format_mdr_retrieval_2("mdrout/frank_on_stqa/top10/frank_stqa_retrieved_noop_top10.json")
+# format_mdr_retrieval_2("mdrout/frank_oracle_top10.json")
 
 
 """
@@ -869,6 +887,15 @@ def my_recall(in_file, out_file):
 # my_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/my_recall_mdr_on_stqa_top5.out")
 # my_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/my_recall_mdr_on_stqa_top10.out")
 # my_recall("mdrout/frank_stqa_retrieved_noop_reformatted.json", "mdrout/my_recall_frank_on_stqa_top10divsubq")
+# my_recall("mdrout/frank_on_stqa/top10/frank_stqa_retrieved_noop_top10_reformatted.json", "mdrout/frank_on_stqa/top10/my_recall_frank_on_stqa_top10.out")
+# my_recall("stqaout/stqa_retrieved_from_decomps_7.json", "stqaout/my_recall_stqa_retrieved_from_decomps_7.out")
+# my_recall("stqaout/stqa_retrieved_from_decomps_11.json", "stqaout/my_recall_stqa_retrieved_from_decomps_11.out")
+# my_recall("out/bm25_decomp_union_frank_top10_retrieved.json", "out/my_recall_bm25_decomp_union_frank_top10.out")
+# my_recall("out/bm25_decomp_union_frank_top10divsubq_retrieved.json", "out/my_recall_bm25_decomp_union_frank_top10divsubq.out")
+# my_recall("out/mdr_union_frank_top10_retrieved.json", "out/my_recall_mdr_union_frank_top10.out")
+# my_recall("out/mdr_union_frank_top10divsubq_retrieved.json", "out/my_recall_mdr_union_frank_top10divsubq.out")
+# my_recall("stqaout/stqa_top5_retrieved.json", "stqaout/my_recall_stqa_top5.out")
+# my_recall("mdrout/frank_oracle/frank_oracle_top10_reformatted.json", "mdrout/frank_oracle/my_recall_frank_oracle.out")
 
 """
 same as my recall but done separately for each annotator and the highest
@@ -911,6 +938,15 @@ def stqa_recall(in_file, out_file):
 # stqa_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/stqa_recall_mdr_on_stqa_top5.out")
 # stqa_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/stqa_recall_mdr_on_stqa_top10.out")
 # stqa_recall("mdrout/frank_stqa_retrieved_noop_reformatted.json", "mdrout/stqa_recall_frank_on_stqa_top10divsubq")
+# stqa_recall("mdrout/frank_on_stqa/top10/frank_stqa_retrieved_noop_top10_reformatted.json", "mdrout/frank_on_stqa/top10/stqa_recall_frank_on_stqa_top10.out")
+# stqa_recall("stqaout/stqa_retrieved_from_decomps_7.json", "stqaout/stqa_recall_stqa_retrieved_from_decomps_7.out")
+# stqa_recall("stqaout/stqa_retrieved_from_decomps_11.json", "stqaout/stqa_recall_stqa_retrieved_from_decomps_11.out")
+# stqa_recall("out/bm25_decomp_union_frank_top10_retrieved.json", "out/stqa_recall_bm25_decomp_union_frank_top10.out")
+# stqa_recall("out/bm25_decomp_union_frank_top10divsubq_retrieved.json", "out/stqa_recall_bm25_decomp_union_frank_top10divsubq.out")
+# stqa_recall("out/mdr_union_frank_top10_retrieved.json", "out/stqa_recall_mdr_union_frank_top10.out")
+# stqa_recall("out/mdr_union_frank_top10divsubq_retrieved.json", "out/stqa_recall_mdr_union_frank_top10divsubq.out")
+# stqa_recall("stqaout/stqa_top5_retrieved.json", "stqaout/stqa_recall_stqa_top5.out")
+# stqa_recall("mdrout/frank_oracle/frank_oracle_top10_reformatted.json", "mdrout/frank_oracle/stqa_recall_frank_oracle.out")
 
 """
 % of questions that have at least one of their gold passages
@@ -943,6 +979,15 @@ def mdr_recall(in_file, out_file):
 # mdr_recall("mdrout/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/mdr_recall_mdr_on_stqa_top5.out")
 # mdr_recall("mdrout/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/mdr_recall_mdr_on_stqa_top10.out")
 # mdr_recall("mdrout/frank_stqa_retrieved_noop_reformatted.json", "mdrout/mdr_recall_frank_on_stqa_top10divsubq")
+# mdr_recall("mdrout/frank_on_stqa/top10/frank_stqa_retrieved_noop_top10_reformatted.json", "mdrout/frank_on_stqa/top10/mdr_recall_frank_on_stqa_top10.out")
+# mdr_recall("stqaout/stqa_retrieved_from_decomps_7.json", "stqaout/mdr_recall_stqa_retrieved_from_decomps_7.out")
+# mdr_recall("stqaout/stqa_retrieved_from_decomps_11.json", "stqaout/mdr_recall_stqa_retrieved_from_decomps_11.out")
+# mdr_recall("out/bm25_decomp_union_frank_top10_retrieved.json", "out/mdr_recall_bm25_decomp_union_frank_top10.out")
+# mdr_recall("out/bm25_decomp_union_frank_top10divsubq_retrieved.json", "out/mdr_recall_bm25_decomp_union_frank_top10divsubq.out")
+# mdr_recall("out/mdr_union_frank_top10_retrieved.json", "out/mdr_recall_mdr_union_frank_top10.out")
+# mdr_recall("out/mdr_union_frank_top10divsubq_retrieved.json", "out/mdr_recall_mdr_union_frank_top10divsubq.out")
+# mdr_recall("stqaout/stqa_top5_retrieved.json", "stqaout/mdr_recall_stqa_top5.out")
+# mdr_recall("mdrout/frank_oracle/frank_oracle_top10_reformatted.json", "mdrout/frank_oracle/mdr_recall_frank_oracle.out")
 
 # manually fix finetune mdr files
 """
@@ -1195,9 +1240,9 @@ def get_stqa_decomps():
         total_annotators = 3
         is_operation = [0 for i in range(len(record["decomposition"]))]
         for anno in record["evidence"]:
-            for i in range(len(anno)):
-                for ev in anno[i]:
-                    if ev == "operation":
+            for i in range(len(anno)): #for subq evidence in anno:
+                for psg_list in anno[i]:
+                    if psg_list == "operation":
                         is_operation[i] += 1
 
         subqs = []
@@ -1209,6 +1254,7 @@ def get_stqa_decomps():
                 for anno in range(total_annotators):
                     new_ev[-1][anno].append(record["evidence"][anno][i])
         
+
         for i in range(len(subqs)):
             (q, decomp_id) = subqs[i]
             d.append({
@@ -1217,12 +1263,469 @@ def get_stqa_decomps():
                 "description": record["description"],
                 "question": q,
                 "answer": None,
-                "facts": None,
-                "decomposition": None,
-                "evidence": new_ev[i] 
+                "facts": [],
+                "decomposition": [q for (q, _) in subqs],
+                "evidence": new_ev[i]
                 })
 
     f_out = open("stqaout/stqa_decomps.json", "w")
     json.dump(d, f_out, indent=4)
 
-get_stqa_decomps() 
+# get_stqa_decomps() 
+
+"""
+got bm25 on stqa decomps to do error analysis
+"""
+def reformat_stqa_decomp_retrieved():
+    print("reformat stqa decomp retrieved")
+    # f_in = open("stqaout/stqa_decomps_preds.jsonl", "r")
+    f_in = open("stqaout/stqa_top5_preds.jsonl", "r")
+    d = []
+    for line in f_in.readlines():
+        d.append(json.loads(line))
+    f_in.close()
+
+    # f_data = open("stqaout/stqa_decomps.json", "r")
+    f_data = open("strategyqa/data/strategyqa/dev.json", "r")
+    data = json.load(f_data)
+    f_data.close()
+
+    for i in range(len(data)):
+        assert(data[i]["question"] == d[i]["question"])
+        d[i]["qid"] = data[i]["qid"]
+        d[i]["sp"] = get_gold_paras_for_stqa_record(data[i])
+        d[i]["rp"] = d[i]["bm25"]
+
+    f_out = open("stqaout/stqa_top5_retrieved.json", "w")
+    json.dump(d, f_out, indent=4)
+
+# reformat_stqa_decomp_retrieved()
+
+"""
+reformat stqa_decomps_retrieved to conslidate decomps of each q
+"""
+def stqa_retrieved_from_decomp(path, k):
+    print("stqa retrieved from decomp , consolidate decomps")
+    
+    f_in = open("stqaout/stqa_decomps_retrieved.json", "r")
+    decomp_data = json.load(f_in)
+    f_in.close()
+
+    f_data = open("strategyqa/data/strategyqa/dev.json", "r")
+    data = json.load(f_data)
+    f_data.close()
+
+    d = []
+    counter = 0
+    curr_qid = decomp_data[0]["qid"].split('-')[0]
+    retrieved = []
+    subq_counter = 0
+    avg_retrieved = 0
+    for record in decomp_data:
+
+        new_qid = record["qid"].split('-')[0]
+        if new_qid != curr_qid:
+            retrieved = [subq_retrieved[:k//subq_counter] for subq_retrieved in retrieved]
+            retrieved = [title for subq_retrieved in retrieved for title in subq_retrieved]
+            retrieved = list(set(retrieved))
+            avg_retrieved += len(retrieved)
+            # print(len(retrieved))
+            d.append({
+                "qid": curr_qid,
+                "sp": get_gold_paras_for_stqa_record(data[counter]),
+                "rp": retrieved
+                })
+
+            curr_qid = new_qid
+            retrieved = []
+            counter +=1
+            subq_counter = 0
+        
+        subq_counter +=1
+        retrieved.append(record["bm25"])
+
+    print(avg_retrieved/counter)
+    f_out = open(path, "w")
+    json.dump(d, f_out, indent=4)
+    f_out.close()
+
+# 11 and 7 are from the count_frank function below
+# stqa_retrieved_from_decomp("stqaout/stqa_retrieved_from_decomps_11.json", 11)
+# stqa_retrieved_from_decomp("stqaout/stqa_retrieved_from_decomps_7.json", 7)
+
+"""
+compare frank on bm25-decomps
+"""
+def error_analysis(path1, path2, outpath, name1, name2):
+
+    f_1 = open(path1, "r")
+    data_1 = json.load(f_1)
+    f_1.close()
+
+    f_2 = open(path2, "r")
+    data_2 = json.load(f_2)
+    f_2.close()
+
+    f_gold = open("strategyqa/data/strategyqa/dev.json", "r")
+    data_gold = json.load(f_gold)
+    f_gold.close()
+
+    d = []
+    both_count = 0
+    onlycount1 = 0
+    onlycount2 = 0
+
+    count1 = 0
+    count2 = 0
+    for i in range(len(data_1)):
+
+        qid = data_1[i]["qid"]
+        assert(qid == data_2[i]["qid"])
+        assert(qid == data_gold[i]["qid"])
+
+        gold = get_gold_paras_for_stqa_record(data_gold[i])
+        list1 = list(set(data_1[i]["rp"]))
+        list2 = list(set(data_2[i]["rp"]))
+        # assert(len(list1) == len(list2))
+        count1 += len(list1)
+        count2 += len(list2)
+
+        def intersect_gold(L):
+            return [psg for psg in L if psg in gold]
+    
+        intersection = intersect_gold([psg for psg in list1 if psg in list2]) 
+        union =  intersect_gold(list(set(list2 + list1)))
+        only1 = intersect_gold([psg for psg in list1 if psg not in list2])
+        only2 = intersect_gold([psg for psg in list2 if psg not in list1])
+
+        both_count += len(intersection)
+        onlycount1 += len(only1)
+        onlycount2 += len(only2)
+
+        d.append({
+            "qid": qid,
+            "question": data_gold[i]["question"],
+            "decomposition": data_gold[i]["decomposition"],
+            "gold": gold,
+            "intersection": intersection,
+            "union": union,
+            name1+"_only": only1,
+            name2+"_only": only2,
+            "total count": len(list(set(list1+list2)))
+            })
+    
+    print("both: ", both_count)
+    print(name1+" only: ", onlycount1)
+    print(name2+" only: ", onlycount2)
+    print(name1+" count: ", count1)
+    print(name2+" count: ", count2)
+    print(name1+" ratio: ", onlycount1/count1)
+    print(name2+" ratio: ", onlycount2/count2)
+
+    f_out = open(outpath, "w")
+    json.dump(d, f_out, indent=4)
+    f_out.close()
+
+# error_analysis("stqaout/stqa_retrieved_from_decomps_7.json", "mdrout/frank_on_stqa/top10divsubq/frank_stqa_retrieved_noop_reformatted.json", "out/bm25_decomp_frank_error_analysis_top10divsubq.json", "bm25", "frank")
+# error_analysis("stqaout/stqa_retrieved_from_decomps_11.json", "mdrout/frank_on_stqa/top10/frank_stqa_retrieved_noop_top10_reformatted.json", "out/bm25_decomp_frank_error_analysis_top10.json", "bm25", "frank")
+# error_analysis("mdrout/mdr_on_stqa/top5/mdr_stqa_retrieval_top5_reformatted.json", "mdrout/frank_on_stqa/top10divsubq/frank_stqa_retrieved_noop_reformatted.json", "out/mdr_frank_error_analysis_top10divsubq.json", "mdr", "frank")
+# error_analysis("mdrout/mdr_on_stqa/top10/mdr_stqa_retrieval_top10_reformatted.json", "mdrout/frank_on_stqa/top10/frank_stqa_retrieved_noop_top10_reformatted.json", "out/mdr_frank_error_analysis_top10.json", "mdr", "frank")
+
+
+"""
+get union of frank and bm25 in a file to get recall on it
+"""
+def get_union(inpath, outpath):
+
+    f_in = open("out/"+inpath, "r")
+    data = json.load(f_in)
+    f_in.close()
+
+    d = []
+    count = 0
+    for record in data:
+        d.append({
+            "qid": record["qid"],
+            "rp": record["union"],
+            "sp": record["gold"]})
+        count += record["total count"]
+
+    print("avg unique titles in union: ", count//len(data))
+
+    f_out = open("out/"+outpath, "w")
+    json.dump(d, f_out, indent=4)
+    f_out.close()
+
+# get_union("bm25_decomp_frank_error_analysis_top10.json", "bm25_decomp_union_frank_top10_retrieved.json")
+# get_union("bm25_decomp_frank_error_analysis_top10divsubq.json", "bm25_decomp_union_frank_top10divsubq_retrieved.json")
+# get_union("mdr_frank_error_analysis_top10.json", "mdr_union_frank_top10_retrieved.json")
+# get_union("mdr_frank_error_analysis_top10divsubq.json", "mdr_union_frank_top10divsubq_retrieved.json")
+
+"""
+add doc_id to stqa dataset. need for frankenstein oracle
+"""
+def add_docid():
+
+    f_in = open("strategyqa/data/strategyqa/dev.json", "r")
+    data = json.load(f_in)
+    f_in.close()
+
+    f_id = open("/projects/tir3/users/nnishika/StqaIndex/id2doc.json", "r")
+    id2doc = json.load(f_id)
+    f_id.close()
+
+    title2id = {}
+    for k, v in id2doc.items():
+        title = v[0]+"-"+str(v[3])
+        title2id[title] = k
+
+    for record in data:
+        for anno in record["evidence"]:
+            for ev in anno:
+                for psg_list in ev:
+                    if isinstance(psg_list, list):
+                        for i in range(len(psg_list)):
+                            psg_name = psg_list[i]
+                            psg_list[i] = (psg_name, title2id[psg_name])
+        # print(record)
+        # break
+    
+
+    f_out = open("stqaout/updated_dev.json", "w")
+    json.dump(data, f_out)
+    f_out.close()
+
+# add_docid()
+
+
+"""
+want to count the avg # of UNIQUE docs mdr/frank got so i know how much to retrieve for bm25 to compare apples to apples
+"""
+def count_unique_docs(path):
+
+    f_in = open(path, "r")
+    data = json.load(f_in)
+    f_in.close()
+
+    count = 0
+    for record in data:
+        record["rp"] = list(set(record["rp"]))
+        count += len(record["rp"])
+
+    print(count/len(data))
+    f_out = open(path, "w")
+    json.dump(data, f_out)
+    f_out.close()
+
+# count_unique_docs("mdrout/on_stqa/top10/stqa_retrieved_noop_top10_reformatted.json")
+# count_unique_docs("mdrout/on_stqa/top10divsubq/stqa_retrieved_noop_reformatted.json")
+# count_unique_docs("mdrout/mdr_on_stqa/top10/mdr_stqa_retrieval_top10_reformatted.json")
+# count_unique_docs("mdrout/mdr_on_stqa/top5/mdr_stqa_retrieval_top5_reformatted.json")
+count_unique_docs("mdrout/frank_oracle/frank_oracle_top10_reformatted.json")
+
+"""
+run stqa on hotpotQA. get hotpotQA in the right format
+"""
+def hotpot_to_stqa():
+
+    f_in = open("multihop_dense_retrieval/data/hotpot/hotpot_qas_val.json", "r")
+    data = []
+    for line in f_in.readlines():
+        data.append(json.loads(line))
+    f_in.close()
+
+    d_out = []
+    for record in data:
+        d = {
+                "qid": record["_id"],
+                "term": None,
+                "description": None,
+                "question": record["question"],
+                "answer": record["answer"],
+                "facts": [],
+                "decomposition": [],
+                "evidence": record["sp"],
+                "type": record["type"]
+                }
+        d_out.append(d)
+
+    f_out = open("stqaout/hotpot_to_stqa.json", "w")
+    json.dump(d_out, f_out, indent=4)
+    f_out.close()
+
+# hotpot_to_stqa()
+
+"""
+want to run frank on QDMR-high-level
+"""
+import csv
+def break_to_stqa():
+
+    f_in = open("Break-dataset/QDMR-high-level/dev.csv", "r")
+    csv_reader = csv.reader(f_in)
+    f_in.close()
+
+    d_out = []
+    for row in csv_reader:
+        d = {
+                "qid": row[0],
+                "term": None,
+                "description": None,
+                "question": row[1],
+                "answer": None,
+                "facts": None,
+                # "decomposition": ?,
+                # "evidence": ?,
+                "type": None
+                }
+        d_out.append(d)
+
+    f_out = open("Break-dataset/QDMR-high_to_stqa.json", "w")
+    json.dump(d_out, f_out)
+    f_out.close()
+
+"""
+get text overlap to ideally prove that
+there is more text overlap between subqs+gold than qs+gold
+which implies that BM25 is better for subqs/single hop
+"""
+import re
+import nltk
+from nltk.corpus import stopwords
+
+def get_lexical_overlap():
+
+    f_decomp = open("stqaout/stqa_decomps.json", "r")
+    decomps = json.load(f_decomp)
+    f_decomp.close()
+
+    f_q = open("stqaout/updated_dev.json", "r")
+    data = json.load(f_q)
+    f_q.close()
+
+    f_id2doc = open("/projects/tir3/users/nnishika/StqaIndex/id2doc.json", "r")
+    id2doc = json.load(f_id2doc)
+    f_id2doc.close()
+
+    subq_overlap = 0
+    q_overlap = 0
+
+    def tokenize(s):
+        tokens = s.lower().split()
+        tokens = [re.sub(r'\W+', '', token) for token in tokens]
+        tokens = [token for token in tokens if token not in stopwords.words('english')]
+        # print(tokens)
+        return tokens
+    
+    def get_overlap(query, docs):
+
+        intersection = [t for t in query if t in docs]
+        return len(intersection)/len(query)
+
+    i = 0
+    counter = 0
+    for record in data:
+        print(counter)
+
+        qid = record["qid"]
+        q = tokenize(record["question"])
+
+        assert(qid == (decomps[i]["qid"].split('-'))[0])
+
+        subqs = []
+        while (i < len(decomps) and (decomps[i]["qid"].split('-'))[0] == qid): 
+            if i >= len(decomps):
+                print(record, i)
+            subqs += tokenize(decomps[i]["question"])
+            i +=1 
+
+        gold_ids = get_gold_ids_for_updated_stqa_record(record)
+        gold_psgs = [id2doc[gold_id][1] for gold_id in gold_ids]
+        gold = [t for t_list in [tokenize(psg) for psg in gold_psgs] for t in t_list]
+
+        q_overlap += get_overlap(q, gold)
+        subq_overlap += get_overlap(subqs, gold)
+
+        # break
+        counter +=1
+
+    subq_overlap /= len(data)
+    q_overlap /= len(data)
+
+    print("subq overlap: ", subq_overlap)
+    print("q overlap: ", q_overlap)
+
+# get_lexical_overlap()
+
+
+"""
+title to text for stqa corpus
+"""
+def title_to_text():
+
+    f = open("/projects/tir3/users/nnishika/StqaIndex/id2doc.json", "r")
+    id2doc = json.load(f)
+    f.close()
+
+    d = {}
+    for _, v in id2doc.items():
+
+        title = v[0]+'-'+str(v[3])
+        text = v[1]
+
+        d[title] = text
+    
+    f_out = open("/projects/tir3/users/nnishika/stqa_title_to_text.json", "w")
+    json.dump(d, f_out, indent=4)
+    f_out.close()
+
+# title_to_text()
+
+"""
+test a few questions for error analysis. these are ids where frank got some that mdr didn't
+"""
+def test_error_analysis(qids):
+
+    f = open("/projects/tir3/users/nnishika/stqa_title_to_text.json", "r")
+    title2text = json.load(f)
+    f.close()
+
+    f_in = open("out/mdr_frank/top10divsubq/mdr_frank_error_analysis_top10divsubq.json", "r")
+    retrieved = json.load(f_in)
+    f_in.close()
+
+    f_frank = open("mdrout/frank_on_stqa/top10divsubq/frank_stqa_retrieved_noop_reformatted.json", "r")
+    frank = json.load(f_frank)
+    f_frank.close()
+
+    f_mdr = open("mdrout/mdr_on_stqa/top5/mdr_stqa_retrieval_top5_reformatted.json", "r")
+    mdr = json.load(f_mdr)
+    f_mdr.close()
+
+    def get_by_qid(qid, d):
+        for record in d:
+            if record["qid"] == qid:
+                return record
+
+    analysis = []
+    count = 0
+    for r in retrieved:
+        if r["qid"] in qids:
+
+            analysis_record = {}
+            analysis_record["retrieved_info"] = r
+            analysis_record["frank_all"] = get_by_qid(r["qid"], frank)
+            analysis_record["mdr_all"] = get_by_qid(r["qid"], mdr)
+
+            analysis.append(analysis_record)
+
+            count +=1
+            if count == len(qids): #done
+                break
+     
+    f_out = open("out/mdr_frank/top10divsubq/subset_finegrain_analysis.json", "w")
+    json.dump(analysis, f_out, indent=4)
+    f_out.close()
+
+# test_error_analysis(['be5c9933987f046b476e', '1932e05f10680ece229f', '7702ee1e9f757ebffdf1', '11d009721f27a60f9cff', '1e959987a695898808f'])
+

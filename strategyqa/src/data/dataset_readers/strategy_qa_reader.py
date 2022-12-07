@@ -101,6 +101,9 @@ class StrategyQAReader(BaseDatasetReader):
 
             logger.info("questies cache updated")
 
+            f = open("/home/nnishika/stqaout/stqa_top5_preds.jsonl", "w")
+            f.close()
+
     @overrides
     def _direct_read(self, file_path: str):
         # if `file_path` is a URL, redirect to the cache
@@ -134,7 +137,7 @@ class StrategyQAReader(BaseDatasetReader):
         answer: Optional[bool] = json_obj["answer"] if "answer" in json_obj else None
         facts: Optional[List[str]] = json_obj["facts"] if "facts" in json_obj else None
 
-        if "decomposition" in json_obj:
+        if False: #"decomposition" in json_obj:
             decomposition_full = [
                 {
                     "question": sub_question,
@@ -182,7 +185,7 @@ class StrategyQAReader(BaseDatasetReader):
                 "answer": answer,
                 "decomposition": decomposition_full,
                 "generated_decomposition": generated_decomposition,
-                "facts": facts,
+                "facts": facts
             }
         )
         return item
@@ -202,7 +205,7 @@ class StrategyQAReader(BaseDatasetReader):
 
         if not self._is_training or answer is not None:
             instance = self.text_to_instance(
-                question, answer, decomposition, generated_decomposition, facts
+                question, answer, decomposition, generated_decomposition, facts 
             )
             if instance is not None:
                 instance["metadata"].metadata["qid"] = item["qid"]
@@ -216,7 +219,7 @@ class StrategyQAReader(BaseDatasetReader):
         answer: Optional[bool] = None,
         decomposition: Optional[List[Dict[str, Any]]] = None,
         generated_decomposition: Optional[List[Dict[str, Any]]] = None,
-        facts: Optional[List[str]] = None,
+        facts: Optional[List[str]] = None
     ) -> Instance:
         tokenizer_wrapper = self._tokenizer_wrapper
         fields = {}
@@ -226,7 +229,7 @@ class StrategyQAReader(BaseDatasetReader):
             question=question,
             decomposition=decomposition,
             generated_decomposition=generated_decomposition,
-            facts=facts,
+            facts=facts
         )
 
         if self._paragraphs_source is not None:
@@ -339,9 +342,42 @@ class StrategyQAReader(BaseDatasetReader):
         Get paragraphs from Elasticsearch based on the question and concatenate them
         """
         query = clean_query(question)
+
+        if query in self._queries_cache:
+            print("in cache")
+        else:
+            print("not in cache")
+
         results = get_elasticsearch_results(self._queries_cache, query)
 
-        # print("question: ", kwargs)
+        """
+        f = open("/home/nnishika/stqaout/stqa_decomps_preds.jsonl", "a")
+        bm25 = []
+        if results != None:
+            min_score = results[0]["score"]
+            for result in results:
+                assert(result["score"] <= min_score)
+                min_score = result["score"]
+                bm25.append((result["evidence_id"], result["score"]))
+
+        f.write(json.dumps({"question":  question, "bm25": bm25})+"\n")
+        f.close()
+        """
+
+        
+        f = open("/home/nnishika/stqaout/stqa_top5_preds.jsonl", "a")
+        bm25 = []
+        if results != None:
+            min_score = results[0]["score"]
+            for result in results[:5]:
+                assert(result["score"] <= min_score)
+                min_score = result["score"]
+                bm25.append(result["evidence_id"])
+
+        f.write(json.dumps({"question":  question, "bm25": bm25})+"\n")
+        f.close()
+            
+                
 
         if results is None:
             return {"queries": [query]}

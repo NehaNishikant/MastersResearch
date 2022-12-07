@@ -14,24 +14,24 @@ conda activate base
 export TQDM_DISABLE=1
 # code
 
-git add strategyqa
-git add multihop_dense_retrieval/scripts
-git add multihop_dense_retrieval/mdr
-git add multihop_dense_retrieval/mycommands
-git add DPR/dpr
-git add DPR/mycommands
-git add DPR/conf
-git add DPR/dense_retriever.py
-git add DPR/download_wiki.py
-git add DPR/generate_dense_embeddings.py
-git add DPR/setup.py
-git add DPR/train_dense_encoder.py
-git add DPR/train_extractive_reader.py
-git add data_utils.py
-git add data_utils.sh
-git add git_add.sh
-git add requirements_base.txt
-git add requirements_mdr.txt
-git add requirements_dpr.txt
-git add requirements_stqa.txt
-git add test/readme.txt
+git add -A strategyqa
+git add -A multihop_dense_retrieval/scripts
+git add -A multihop_dense_retrieval/mdr
+git add -A multihop_dense_retrieval/mycommands
+git add -A DPR/dpr
+git add -A DPR/mycommands
+git add -A DPR/conf
+git add -A DPR/dense_retriever.py
+git add -A DPR/download_wiki.py
+git add -A DPR/generate_dense_embeddings.py
+git add -A DPR/setup.py
+git add -A DPR/train_dense_encoder.py
+git add -A DPR/train_extractive_reader.py
+git add -A data_utils.py
+git add -A data_utils.sh
+git add -A git_add.sh
+git add -A requirements_base.txt
+git add -A requirements_mdr.txt
+git add -A requirements_dpr.txt
+git add -A requirements_stqa.txt
+git add -A test/readme.txt

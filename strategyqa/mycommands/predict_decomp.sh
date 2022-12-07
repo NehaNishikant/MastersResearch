@@ -13,4 +13,4 @@ conda activate stqa
 ​
 export TQDM_DISABLE=1
 # code
-python3 run_scripts/predict.py --model /projects/tir3/users/nnishika/3_STAR_IR-Q.tar.gz --data data/strategyqa/dev.json --output-file stqa_preds.jsonl
+python3 run_scripts/predict.py --model /projects/tir3/users/nnishika/3_STAR_IR-Q.tar.gz --data /home/nnishika/stqaout/stqa_decomps.json 

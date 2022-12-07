@@ -9,13 +9,8 @@
 eval "$(conda shell.bash hook)"
 # you environment
 source /home/nnishika/miniconda3/etc/profile.d/conda.sh
-conda activate dpr
+conda activate stqa
 ​
 export TQDM_DISABLE=1
 # code
-
-python generate_dense_embeddings.py \
-    model_file = ... \
-    ctx_src = ... \
-    shard_id = num_shards=4\
-    out_file = ...
+python3 run_scripts/predict.py --model /projects/tir3/users/nnishika/3_STAR_IR-Q.tar.gz --data /home/nnishika/stqaout/hotpot_to_stqa.json --output-file /home/nnishika/stqaout/hotpot_preds.jsonl

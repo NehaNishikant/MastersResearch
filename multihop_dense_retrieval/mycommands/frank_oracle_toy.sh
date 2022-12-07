@@ -23,14 +23,14 @@ export OMP_NUM_THREADS=1
 
 # --mem=280gb --grs=gpu:1
 
-python scripts/eval/eval_frankenstein.py /home/nnishika/strategyqa/data/strategyqa/dev.json \
+python scripts/eval/eval_frankenstein_oracle.py /home/nnishika/stqaout/updated_dev_toy.json \
     /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \
     /projects/tir3/users/nnishika/StqaIndex/id2doc.json \
     models/q_encoder.pt \
-    --beam-size 10 \
-    --topk 10 \
+    --topk 2 \
+    --beam-size 3 \
     --shared-encoder \
     --model-name roberta-base \
-    --save-path /home/nnishika/mdrout/frank_stqa_retrieved_noop_top10.json
+    --save-path /home/nnishika/mdrout/frank_oracle_toy.json
 #   --gpu
 

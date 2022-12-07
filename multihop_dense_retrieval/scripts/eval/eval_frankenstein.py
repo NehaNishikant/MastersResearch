@@ -70,7 +70,6 @@ if __name__ == '__main__':
     parser.add_argument('--max-q-len', type=int, default=70)
     parser.add_argument('--max-c-len', type=int, default=300)
     parser.add_argument('--max-q-sp-len', type=int, default=350)
-    parser.add_argument('--batch-size', type=int, default=100)
     parser.add_argument('--beam-size', type=int, default=5)
     parser.add_argument('--model-name', type=str, default='roberta-base')
     parser.add_argument('--gpu', action="store_true")
@@ -147,8 +146,8 @@ if __name__ == '__main__':
             if is_operation[i] < total_annotators/2:
                 subqs.append(record["decomposition"][i])
         
-        args.beam_size = 10 # // len(subqs)
-        args.topk = 10 # // len(subqs)
+        # args.beam_size = args.topk  // len(subqs)
+        # args.topk = args.topk // len(subqs)
 
         # metrics = []
     
@@ -330,7 +329,7 @@ if __name__ == '__main__':
         
         retrieval_outputs.append({
             "qid": record["qid"],
-            "rp": retrieved_titles,
+            "rp": list(set(retrieved_titles)),
             "subqs": subqs,
             # "_id": record["qid"],
             # "question": record["question"],

@@ -27,7 +27,6 @@ python scripts/eval/eval_frankenstein.py /home/nnishika/strategyqa/data/strategy
     /projects/tir3/users/nnishika/StqaIndex/StqaIndex.npy \
     /projects/tir3/users/nnishika/StqaIndex/id2doc.json \
     models/q_encoder.pt \
-    --batch-size 1 \
     --beam-size 2 \
     --topk 1 \
     --shared-encoder \
