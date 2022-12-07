@@ -1,0 +1,34 @@
+/var/spool/slurmd/job571386/slurm_script: line 7: ​: command not found
+/var/spool/slurmd/job571386/slurm_script: line 13: ​: command not found
+both:  32
+bm25 only:  94
+frank only:  64
+bm25 count:  1369
+frank count:  1535
+bm25 ratio:  0.06866325785244703
+frank ratio:  0.04169381107491857
+both:  51
+bm25 only:  117
+frank only:  74
+bm25 count:  2182
+frank count:  2427
+bm25 ratio:  0.053620531622364805
+frank ratio:  0.030490317264112072
+both:  30
+mdr only:  83
+frank only:  67
+mdr count:  1310
+frank count:  1541
+mdr ratio:  0.0633587786259542
+frank ratio:  0.043478260869565216
+both:  57
+mdr only:  102
+frank only:  69
+mdr count:  2307
+frank count:  2436
+mdr ratio:  0.044213263979193757
+frank ratio:  0.02832512315270936
+avg unique titles in union:  19
+avg unique titles in union:  12
+avg unique titles in union:  19
+avg unique titles in union:  11

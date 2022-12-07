@@ -1,0 +1,547 @@
+[
+    {
+        "retrieved_info": {
+            "qid": "be5c9933987f046b476e",
+            "question": "Is greed the most prevalent of the Seven Deadly Sins?",
+            "decomposition": [
+                "Is greed a  deadly sin?",
+                "Is gluttonly a deadly sin?",
+                "What percent of crimes involved greed?",
+                "What percent of people are overweight?",
+                "If #1 and #2 are both yes is #3 a higher percentager than #4?"
+            ],
+            "gold": [
+                "White-collar crime-3",
+                "Obesity in the United States-41",
+                "Gluttony-2",
+                "Obesity-4",
+                "Theft-52",
+                "Theft-1",
+                "Seven deadly sins-1",
+                "Overweight-18",
+                "Greed-10"
+            ],
+            "intersection": [],
+            "union": [
+                "Gluttony-2",
+                "Seven deadly sins-1"
+            ],
+            "mdr_only": [
+                "Seven deadly sins-1"
+            ],
+            "frank_only": [
+                "Gluttony-2"
+            ],
+            "total count": 9
+        },
+        "frank_all": {
+            "qid": "be5c9933987f046b476e",
+            "rp": [
+                "Seven deadly sins-22",
+                "Coalesced hashing-16",
+                "Gluttony-2",
+                "Clandestine human intelligence-86",
+                "Military intelligence-31"
+            ],
+            "subqs": [
+                "Is greed a  deadly sin?",
+                "Is gluttonly a deadly sin?",
+                "What percent of crimes involved greed?",
+                "What percent of people are overweight?"
+            ],
+            "candidate_chains": [
+                [
+                    {
+                        "title": "Seven deadly sins",
+                        "text": "As defined outside Christian writings, greed is an inordinate desire to acquire or possess more than one needs, especially with respect to material wealth. Like pride, it can lead to not just some, but all evil.",
+                        "para_id": 22
+                    },
+                    {
+                        "title": "Gluttony",
+                        "text": "In Christianity, it is considered a sin if the excessive desire for food causes it to be withheld from the needy. Some Christian denominations consider gluttony one of the seven deadly sins.",
+                        "para_id": 2
+                    },
+                    {
+                        "title": "Military intelligence",
+                        "text": "In some intelligence organizations, analysis follows a procedure. First, general media and sources are screened to locate items or groups of interest, and then their location, capabilities, inputs and environment are systematically assessed for vulnerabilities using a continuously-updated list of typical vulnerabilities.",
+                        "para_id": 31
+                    },
+                    {
+                        "title": "Clandestine human intelligence",
+                        "text": "It is a difficult call as to whether a safehouse should have destruction facilities. Modern forensic laboratories can reconstruct papers that are merely burned or shredded, although shredders are no longer exotic items, especially if the safehouse serves a mundane office function. More definitive destruction capabilities will confirm the clandestine use of the premises, but they may be a reasonable protection if the safehouse is being overrun and critical communications or other security material is in jeopardy.",
+                        "para_id": 86
+                    }
+                ],
+                [
+                    {
+                        "title": "Seven deadly sins",
+                        "text": "As defined outside Christian writings, greed is an inordinate desire to acquire or possess more than one needs, especially with respect to material wealth. Like pride, it can lead to not just some, but all evil.",
+                        "para_id": 22
+                    },
+                    {
+                        "title": "Gluttony",
+                        "text": "In Christianity, it is considered a sin if the excessive desire for food causes it to be withheld from the needy. Some Christian denominations consider gluttony one of the seven deadly sins.",
+                        "para_id": 2
+                    },
+                    {
+                        "title": "Military intelligence",
+                        "text": "In some intelligence organizations, analysis follows a procedure. First, general media and sources are screened to locate items or groups of interest, and then their location, capabilities, inputs and environment are systematically assessed for vulnerabilities using a continuously-updated list of typical vulnerabilities.",
+                        "para_id": 31
+                    },
+                    {
+                        "title": "Coalesced hashing",
+                        "text": "/* Make a new chain */",
+                        "para_id": 16
+                    }
+                ]
+            ],
+            "sp": [
+                "Greed-10",
+                "White-collar crime-3",
+                "Obesity-4",
+                "Obesity in the United States-41",
+                "Theft-1",
+                "Theft-52",
+                "Overweight-18",
+                "Seven deadly sins-1",
+                "Gluttony-2"
+            ]
+        },
+        "mdr_all": {
+            "qid": "be5c9933987f046b476e",
+            "sp": [
+                "Overweight-18",
+                "Greed-10",
+                "Seven deadly sins-1",
+                "Obesity in the United States-41",
+                "White-collar crime-3",
+                "Obesity-4",
+                "Gluttony-2",
+                "Theft-52",
+                "Theft-1"
+            ],
+            "rp": [
+                "Seven deadly sins-22",
+                "Seven deadly sins-42",
+                "Seven deadly sins-10",
+                "Seven deadly sins-1",
+                "Seven deadly sins-3"
+            ]
+        }
+    },
+    {
+        "retrieved_info": {
+            "qid": "1932e05f10680ece229f",
+            "question": "Would the top of Mount Fuji stick out of the Sea of Japan? ",
+            "decomposition": [
+                "How tall is Mount Fuji?",
+                "What is the maximum depth of the Sea of Japan?",
+                "Is #1 greater than #2?"
+            ],
+            "gold": [
+                "Mount Fuji-18",
+                "Mount Fuji-1",
+                "Sea of Japan-15"
+            ],
+            "intersection": [],
+            "union": [
+                "Sea of Japan-15",
+                "Mount Fuji-1",
+                "Mount Fuji-18"
+            ],
+            "mdr_only": [
+                "Mount Fuji-1",
+                "Mount Fuji-18"
+            ],
+            "frank_only": [
+                "Sea of Japan-15"
+            ],
+            "total count": 12
+        },
+        "frank_all": {
+            "qid": "1932e05f10680ece229f",
+            "rp": [
+                "Mount Fuji-39",
+                "Historic eruptions of Mount Fuji-1",
+                "Thirty-six Views of Mount Fuji-3",
+                "Thirty-six Views of Mount Fuji (Hiroshige)-2",
+                "Mount Fuji-37",
+                "Sea of Japan-15"
+            ],
+            "subqs": [
+                "How tall is Mount Fuji?",
+                "What is the maximum depth of the Sea of Japan?"
+            ],
+            "candidate_chains": [
+                [
+                    {
+                        "title": "Thirty-six Views of Mount Fuji (Hiroshige)",
+                        "text": "Note: All locations use the modern place names.",
+                        "para_id": 2
+                    },
+                    {
+                        "title": "Sea of Japan",
+                        "text": "The sea has a surface area of about 978,000\u00a0km2 (378,000\u00a0sq\u00a0mi), a mean depth of 1,752\u00a0m (5,748\u00a0ft) and a maximum depth of 3,742\u00a0m (12,277\u00a0ft).",
+                        "para_id": 15
+                    }
+                ],
+                [
+                    {
+                        "title": "Historic eruptions of Mount Fuji",
+                        "text": "Coordinates: 35\u00b021\u203246.35\u2033N 138\u00b043\u203253.63\u2033E\ufeff / \ufeff35.3628750\u00b0N 138.7315639\u00b0E\ufeff / 35.3628750; 138.7315639 Historic eruptions of Mount Fuji (\u5bcc\u58eb\u5c71\u306e\u5674\u706b\u53f2, Fuji-san no funka-shi) Mount Fuji is the tallest volcano in Japan, and also the highest peak.",
+                        "para_id": 1
+                    },
+                    {
+                        "title": "Sea of Japan",
+                        "text": "The sea has a surface area of about 978,000\u00a0km2 (378,000\u00a0sq\u00a0mi), a mean depth of 1,752\u00a0m (5,748\u00a0ft) and a maximum depth of 3,742\u00a0m (12,277\u00a0ft).",
+                        "para_id": 15
+                    }
+                ],
+                [
+                    {
+                        "title": "Mount Fuji",
+                        "text": "Play media There are eight peaks around the crater at the summit. The highest point in Japan, Ken-ga-mine, is where the Mount Fuji Radar System used to be (it was replaced by an automated system in 2004). Climbers are able to visit each of these peaks.",
+                        "para_id": 37
+                    },
+                    {
+                        "title": "Sea of Japan",
+                        "text": "The sea has a surface area of about 978,000\u00a0km2 (378,000\u00a0sq\u00a0mi), a mean depth of 1,752\u00a0m (5,748\u00a0ft) and a maximum depth of 3,742\u00a0m (12,277\u00a0ft).",
+                        "para_id": 15
+                    }
+                ],
+                [
+                    {
+                        "title": "Thirty-six Views of Mount Fuji",
+                        "text": "Mount Fuji is a popular subject for Japanese art due to its cultural and religious significance. This belief can be traced to The Tale of the Bamboo Cutter, where a goddess deposits the elixir of life on the peak. As the historian Henry Smith explains, \"Thus from an early time, Mt. Fuji was seen as the source of the secret of immortality, a tradition that was at the heart of Hokusai's own obsession with the mountain.\"",
+                        "para_id": 3
+                    },
+                    {
+                        "title": "Sea of Japan",
+                        "text": "The sea has a surface area of about 978,000\u00a0km2 (378,000\u00a0sq\u00a0mi), a mean depth of 1,752\u00a0m (5,748\u00a0ft) and a maximum depth of 3,742\u00a0m (12,277\u00a0ft).",
+                        "para_id": 15
+                    }
+                ],
+                [
+                    {
+                        "title": "Mount Fuji",
+                        "text": "As a national symbol of the country, the mountain has been depicted in various art media such as paintings, woodblock prints (such as the Thirty-six Views of Mount Fuji), poetry, music, theater, film, manga, anime, pottery and even Kawaii subculture.",
+                        "para_id": 39
+                    },
+                    {
+                        "title": "Sea of Japan",
+                        "text": "The sea has a surface area of about 978,000\u00a0km2 (378,000\u00a0sq\u00a0mi), a mean depth of 1,752\u00a0m (5,748\u00a0ft) and a maximum depth of 3,742\u00a0m (12,277\u00a0ft).",
+                        "para_id": 15
+                    }
+                ]
+            ],
+            "sp": [
+                "Sea of Japan-15",
+                "Mount Fuji-1",
+                "Mount Fuji-18"
+            ]
+        },
+        "mdr_all": {
+            "qid": "1932e05f10680ece229f",
+            "sp": [
+                "Mount Fuji-1",
+                "Mount Fuji-18",
+                "Sea of Japan-15"
+            ],
+            "rp": [
+                "Mount Fuji-1",
+                "Mount Fuji-22",
+                "Mount Fuji-11",
+                "Tsushima Island-6",
+                "Mount Fuji-18",
+                "Mount Fuji-31"
+            ]
+        }
+    },
+    {
+        "retrieved_info": {
+            "qid": "7702ee1e9f757ebffdf1",
+            "question": "Did any country in Portuguese Colonial War share Switzerlands role in WWII?",
+            "decomposition": [
+                "What was Switzerland's position in World War II?",
+                "Which countries were involved in the Portuguese Colonial War?",
+                "Did any of #2 maintain a #1 position through World War II?"
+            ],
+            "gold": [
+                "Neutral powers during World War II-6",
+                "Portuguese Colonial War-1",
+                "Portuguese Colonial War-2",
+                "The Two Faces of War-11",
+                "Switzerland-33",
+                "Switzerland during the World Wars-1",
+                "Switzerland during the World Wars-20",
+                "Liberal Wars-1"
+            ],
+            "intersection": [],
+            "union": [
+                "Portuguese Colonial War-2"
+            ],
+            "mdr_only": [],
+            "frank_only": [
+                "Portuguese Colonial War-2"
+            ],
+            "total count": 11
+        },
+        "frank_all": {
+            "qid": "7702ee1e9f757ebffdf1",
+            "rp": [
+                "Portugal-116",
+                "Far-right politics in Switzerland-8",
+                "Switzerland during the World Wars-22",
+                "Portuguese Colonial War-88",
+                "Portuguese Colonial War-2",
+                "Switzerland during the World Wars-17"
+            ],
+            "subqs": [
+                "What was Switzerland's position in World War II?",
+                "Which countries were involved in the Portuguese Colonial War?"
+            ],
+            "candidate_chains": [
+                [
+                    {
+                        "title": "Switzerland during the World Wars",
+                        "text": "As European tension grew in the 1930s, the Swiss began to rethink their political and military situation. The Social Democratic party abandoned their revolutionary and anti-military stances, and soon the country began to rearm for war. BGB Federal Councillor Rudolf Minger, predicting war would come in 1939, led the rebuilding of the Swiss Army. Starting in 1936, he secured a larger defence budget and started a war bond system. The army was restructured into smaller, better equipped divisions and boot camp for conscripts was extended to 3 months of instruction. In 1937 a war economy cell was established. Households were encouraged to keep a two-month supply of food and basic necessities. In 1938 Foreign Minister Giuseppe Motta withdrew Switzerland from the League of Nations, returning the country to its traditional form of neutrality.",
+                        "para_id": 17
+                    },
+                    {
+                        "title": "Portuguese Colonial War",
+                        "text": "There were also many Portuguese irregular forces in the Overseas War such as the Flechas and others, as mentioned above.",
+                        "para_id": 88
+                    }
+                ],
+                [
+                    {
+                        "title": "Switzerland during the World Wars",
+                        "text": "Despite the public and political attitudes in Switzerland, some higher-ranking officers within the Swiss Army had pro-Nazi sympathies: notably Colonel Arthur Fonjallaz and Colonel Eugen Bircher, who led the Schweizerischer Vaterl\u00e4ndischer Verband. In Letters with Suzanne (French: Lettres \u00e0 Suzanne, Lausanne, Switzerland, 1949), the Swiss journalist L\u00e9on Savary retrospectively denounced in this sense \"the occult influence of Hitlerism on the Swiss people during the Second World War, which they were not conscious of being under\".",
+                        "para_id": 22
+                    },
+                    {
+                        "title": "Portuguese Colonial War",
+                        "text": "There were also many Portuguese irregular forces in the Overseas War such as the Flechas and others, as mentioned above.",
+                        "para_id": 88
+                    }
+                ],
+                [
+                    {
+                        "title": "Far-right politics in Switzerland",
+                        "text": "The end of the war saw the emergence of neo-Nazism in Switzerland, with the Volkspartei der Schweiz of Gaston-Armand Amaudruz the most important group. A Swiss Nazi Party, also existed at a minor level and during a 1970 trial evidence was heard that it maintained links to Al Fatah. Fran\u00e7ois Genoud was also a member and he helped to maintain links between the group and both Hjalmar Schacht and the Popular Front for the Liberation of Palestine.",
+                        "para_id": 8
+                    },
+                    {
+                        "title": "Portuguese Colonial War",
+                        "text": "The prevalent Portuguese and international historical approach considers the Portuguese Colonial War as was perceived at the time: a single conflict fought in three separate theaters of operations: Angola, Guinea-Bissau and Mozambique (sometimes including the 1954 Indian Annexation of Dadra and Nagar Haveli and 1961 Indian Annexation of Goa) rather than a number of separate conflicts as the emergent African countries aided each other during the war.",
+                        "para_id": 2
+                    }
+                ],
+                [
+                    {
+                        "title": "Switzerland during the World Wars",
+                        "text": "Despite the public and political attitudes in Switzerland, some higher-ranking officers within the Swiss Army had pro-Nazi sympathies: notably Colonel Arthur Fonjallaz and Colonel Eugen Bircher, who led the Schweizerischer Vaterl\u00e4ndischer Verband. In Letters with Suzanne (French: Lettres \u00e0 Suzanne, Lausanne, Switzerland, 1949), the Swiss journalist L\u00e9on Savary retrospectively denounced in this sense \"the occult influence of Hitlerism on the Swiss people during the Second World War, which they were not conscious of being under\".",
+                        "para_id": 22
+                    },
+                    {
+                        "title": "Portugal",
+                        "text": "Also in the early 1960s, independence movements in the Portuguese overseas provinces of Angola, Mozambique and Guinea in Africa, resulted in the Portuguese Colonial War (1961\u20131974).",
+                        "para_id": 116
+                    }
+                ],
+                [
+                    {
+                        "title": "Switzerland during the World Wars",
+                        "text": "Despite the public and political attitudes in Switzerland, some higher-ranking officers within the Swiss Army had pro-Nazi sympathies: notably Colonel Arthur Fonjallaz and Colonel Eugen Bircher, who led the Schweizerischer Vaterl\u00e4ndischer Verband. In Letters with Suzanne (French: Lettres \u00e0 Suzanne, Lausanne, Switzerland, 1949), the Swiss journalist L\u00e9on Savary retrospectively denounced in this sense \"the occult influence of Hitlerism on the Swiss people during the Second World War, which they were not conscious of being under\".",
+                        "para_id": 22
+                    },
+                    {
+                        "title": "Portuguese Colonial War",
+                        "text": "The prevalent Portuguese and international historical approach considers the Portuguese Colonial War as was perceived at the time: a single conflict fought in three separate theaters of operations: Angola, Guinea-Bissau and Mozambique (sometimes including the 1954 Indian Annexation of Dadra and Nagar Haveli and 1961 Indian Annexation of Goa) rather than a number of separate conflicts as the emergent African countries aided each other during the war.",
+                        "para_id": 2
+                    }
+                ]
+            ],
+            "sp": [
+                "Switzerland during the World Wars-20",
+                "Switzerland during the World Wars-1",
+                "Portuguese Colonial War-1",
+                "Neutral powers during World War II-6",
+                "Switzerland-33",
+                "Portuguese Colonial War-2",
+                "The Two Faces of War-11",
+                "Liberal Wars-1"
+            ]
+        },
+        "mdr_all": {
+            "qid": "7702ee1e9f757ebffdf1",
+            "sp": [
+                "Switzerland during the World Wars-20",
+                "Portuguese Colonial War-1",
+                "Switzerland during the World Wars-1",
+                "The Two Faces of War-11",
+                "Neutral powers during World War II-6",
+                "Switzerland-33",
+                "Portuguese Colonial War-2",
+                "Liberal Wars-1"
+            ],
+            "rp": [
+                "Portuguese Colonial War-20",
+                "Archipelago fleet-13",
+                "Franco-Swedish War-1",
+                "Portuguese Colonial War-19",
+                "Military history of Sweden-46"
+            ]
+        }
+    },
+    {
+        "retrieved_info": {
+            "qid": "11d009721f27a60f9cff",
+            "question": "Would a Pict be confused by Old English?",
+            "decomposition": [
+                "What language was spoken by the Picts?",
+                "In what language family is Old English?",
+                "Is #2 not closely related to #1?"
+            ],
+            "gold": [
+                "Celtic languages-1",
+                "Old English-1",
+                "Picts-36",
+                "English language-2",
+                "Pictish language-2",
+                "Pictish language-1",
+                "West Germanic languages-2",
+                "Picts-1",
+                "Old English-2",
+                "Old English-3"
+            ],
+            "intersection": [
+                "Picts-36"
+            ],
+            "union": [
+                "Old English-1",
+                "Picts-36",
+                "Old English-3"
+            ],
+            "mdr_only": [
+                "Old English-1"
+            ],
+            "frank_only": [
+                "Old English-3"
+            ],
+            "total count": 10
+        },
+        "frank_all": {
+            "qid": "11d009721f27a60f9cff",
+            "rp": [
+                "English language in Europe-7",
+                "Old English-7",
+                "Old English-3",
+                "Old English-13",
+                "English language-6",
+                "Picts-36"
+            ],
+            "subqs": [
+                "What language was spoken by the Picts?",
+                "In what language family is Old English?"
+            ],
+            "candidate_chains": [
+                [
+                    {
+                        "title": "Picts",
+                        "text": "The Pictish language is extinct. Evidence is limited to place names, the names of people found on monuments, and the contemporary records in other languages. The evidence of place-names and personal names argues strongly that the Picts spoke Insular Celtic languages related to the more southerly Brittonic languages. A number of Ogham inscriptions have been argued to be unidentifiable as Celtic, and on this basis, it has been suggested that non-Celtic languages were also in use.",
+                        "para_id": 36
+                    },
+                    {
+                        "title": "Old English",
+                        "text": "Old English should not be regarded as a single monolithic entity, just as Modern English is also not monolithic. It emerged over time out of the dialects of the colonising tribes, and it is only towards the later Anglo-Saxon period that these can be considered to have constituted a single national language. Even then, Old English continued to exhibit much local and regional variation, remnants of which remain in Modern English dialects.",
+                        "para_id": 13
+                    }
+                ],
+                [
+                    {
+                        "title": "Picts",
+                        "text": "The Pictish language is extinct. Evidence is limited to place names, the names of people found on monuments, and the contemporary records in other languages. The evidence of place-names and personal names argues strongly that the Picts spoke Insular Celtic languages related to the more southerly Brittonic languages. A number of Ogham inscriptions have been argued to be unidentifiable as Celtic, and on this basis, it has been suggested that non-Celtic languages were also in use.",
+                        "para_id": 36
+                    },
+                    {
+                        "title": "Old English",
+                        "text": "Old English is a West Germanic language, developing out of Ingvaeonic (also known as North Sea Germanic) dialects from the 5th century. It came to be spoken over most of the territory of the Anglo-Saxon kingdoms which became the Kingdom of England. This included most of present-day England, as well as part of what is now southeastern Scotland, which for several centuries belonged to the Anglo-Saxon kingdom of Northumbria. Other parts of the island \u2013 Wales and most of Scotland \u2013 continued to use Celtic languages, except in the areas of Scandinavian settlements where Old Norse was spoken. Celtic speech also remained established in certain parts of England: Medieval Cornish was spoken all over Cornwall and in adjacent parts of Devon, while Cumbric survived perhaps to the 12th century in parts of Cumbria, and Welsh may have been spoken on the English side of the Anglo-Welsh border. Norse was also widely spoken in the parts of England which fell under Danish law.",
+                        "para_id": 7
+                    }
+                ],
+                [
+                    {
+                        "title": "Picts",
+                        "text": "The Pictish language is extinct. Evidence is limited to place names, the names of people found on monuments, and the contemporary records in other languages. The evidence of place-names and personal names argues strongly that the Picts spoke Insular Celtic languages related to the more southerly Brittonic languages. A number of Ogham inscriptions have been argued to be unidentifiable as Celtic, and on this basis, it has been suggested that non-Celtic languages were also in use.",
+                        "para_id": 36
+                    },
+                    {
+                        "title": "English language",
+                        "text": "English is an Indo-European language and belongs to the West Germanic group of the Germanic languages. Old English originated from a Germanic tribal and linguistic continuum along the Frisian North Sea coast, whose languages gradually evolved into the Anglic languages in the British Isles, and into the Frisian languages and Low German/Low Saxon on the continent. The Frisian languages, which together with the Anglic languages form the Anglo-Frisian languages, are the closest living relatives of English. Low German/Low Saxon is also closely related, and sometimes English, the Frisian languages, and Low German are grouped together as the Ingvaeonic (North Sea Germanic) languages, though this grouping remains debated. Old English evolved into Middle English, which in turn evolved into Modern English. Particular dialects of Old and Middle English also developed into a number of other Anglic languages, including Scots and the extinct Fingallian and Forth and Bargy (Yola) dialects of Ireland.",
+                        "para_id": 6
+                    }
+                ],
+                [
+                    {
+                        "title": "Picts",
+                        "text": "The Pictish language is extinct. Evidence is limited to place names, the names of people found on monuments, and the contemporary records in other languages. The evidence of place-names and personal names argues strongly that the Picts spoke Insular Celtic languages related to the more southerly Brittonic languages. A number of Ogham inscriptions have been argued to be unidentifiable as Celtic, and on this basis, it has been suggested that non-Celtic languages were also in use.",
+                        "para_id": 36
+                    },
+                    {
+                        "title": "Old English",
+                        "text": "Old English is one of the West Germanic languages, and its closest relatives are Old Frisian and Old Saxon. Like other old Germanic languages, it is very different from Modern English and difficult for Modern English speakers to understand without study. Within Old English grammar nouns, adjectives, pronouns and verbs have many inflectional endings and forms, and word order is much freer. The oldest Old English inscriptions were written using a runic system, but from about the 8th century this was replaced by a version of the Latin alphabet.",
+                        "para_id": 3
+                    }
+                ],
+                [
+                    {
+                        "title": "Picts",
+                        "text": "The Pictish language is extinct. Evidence is limited to place names, the names of people found on monuments, and the contemporary records in other languages. The evidence of place-names and personal names argues strongly that the Picts spoke Insular Celtic languages related to the more southerly Brittonic languages. A number of Ogham inscriptions have been argued to be unidentifiable as Celtic, and on this basis, it has been suggested that non-Celtic languages were also in use.",
+                        "para_id": 36
+                    },
+                    {
+                        "title": "English language in Europe",
+                        "text": "These Germanic invaders dominated the original Celtic-speaking inhabitants. The dialects spoken by these invaders formed what would be called Old English, which was also strongly influenced by yet another Germanic language, Old East Norse, spoken by Danish Viking invaders who settled mainly in the North-East. English, England and East Anglia are derived from words referring to the Angles: Englisc, Angelcynn and Englaland.",
+                        "para_id": 7
+                    }
+                ]
+            ],
+            "sp": [
+                "Pictish language-1",
+                "Old English-2",
+                "Old English-3",
+                "Picts-36",
+                "Picts-1",
+                "Celtic languages-1",
+                "West Germanic languages-2",
+                "Old English-1",
+                "Pictish language-2",
+                "English language-2"
+            ]
+        },
+        "mdr_all": {
+            "qid": "11d009721f27a60f9cff",
+            "sp": [
+                "English language-2",
+                "West Germanic languages-2",
+                "Old English-3",
+                "Old English-1",
+                "Celtic languages-1",
+                "Picts-1",
+                "Picts-36",
+                "Pictish language-1",
+                "Pictish language-2",
+                "Old English-2"
+            ],
+            "rp": [
+                "History of English-11",
+                "Picts-36",
+                "Old English-1",
+                "Old English-13",
+                "Picts-22",
+                "English language-12"
+            ]
+        }
+    }
+]

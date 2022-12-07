@@ -35,3 +35,7 @@ git add -A requirements_mdr.txt
 git add -A requirements_dpr.txt
 git add -A requirements_stqa.txt
 git add -A test/readme.txt
+git add -A stqaout/
+git add -A mdrout/
+git add -A dprout/
+git add -A out/
